@@ -1,0 +1,115 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      bump_version:
+        description: Bump marketing version patch before upload
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+concurrency:
+  group: build-and-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Build and upload to TestFlight
+    runs-on:
+      - self-hosted
+      - macOS
+      - personal
+      - stack-attack
+    timeout-minutes: 60
+    env:
+      XCODE_PATH: /Applications/Xcode.app
+      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+      APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+      APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_READONLY: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select Xcode
+        run: |
+          if [ -d "$DEVELOPER_DIR" ]; then
+            export PATH="$DEVELOPER_DIR/usr/bin:$PATH"
+            echo "Using DEVELOPER_DIR=$DEVELOPER_DIR"
+            xcode-select -p
+            xcodebuild -version
+          else
+            echo "Developer directory does not exist: $DEVELOPER_DIR"
+            echo "Configured XCODE_PATH: $XCODE_PATH"
+            xcode-select -p
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: |
+          export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          brew list swiftgen >/dev/null 2>&1 || brew install swiftgen
+          brew list swiftlint >/dev/null 2>&1 || brew install swiftlint
+
+          ruby_version="$(ruby -e 'print RbConfig::CONFIG["ruby_version"]')"
+          user_gem_home="$HOME/.gem/ruby/$ruby_version"
+          export GEM_HOME="$user_gem_home"
+          export GEM_PATH="$GEM_HOME:$(ruby -e 'print Gem.default_dir')"
+          export PATH="$GEM_HOME/bin:$PATH"
+
+          gem install --user-install bundler -v 2.5.3
+          bundle _2.5.3_ install
+
+          {
+            echo "GEM_HOME=$GEM_HOME"
+            echo "GEM_PATH=$GEM_PATH"
+          } >> "$GITHUB_ENV"
+          echo "$GEM_HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Prepare local project env
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          BUNDLE_ID: ${{ vars.BUNDLE_ID || 'com.kostyuchenko.stack-attack' }}
+        run: |
+          if [ -z "$TEAM_ID" ]; then
+            echo "Missing required secret APPLE_TEAM_ID"
+            exit 1
+          fi
+          if [ -z "$BUNDLE_ID" ]; then
+            echo "Missing required variable BUNDLE_ID"
+            exit 1
+          fi
+          {
+            printf '%s\n' 'PROJECT_NAME="StackAttack"'
+            printf '%s\n' 'APP_DISPLAY_NAME="Stack Attack"'
+            printf '%s\n' 'TARGET_NAME=StackAttack'
+          } > Scripts/project.env
+          printf 'TEAM_ID=%s\n' "$TEAM_ID" >> Scripts/project.env
+          printf 'BUNDLE_ID=%s\n' "$BUNDLE_ID" >> Scripts/project.env
+
+      - name: Configure Git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Deploy to TestFlight
+        run: |
+          export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+          cd Scripts/fastlane
+          bundle _2.5.3_ exec fastlane ios deploy_to_tf bump_version:${{ inputs.bump_version || 'false' }}

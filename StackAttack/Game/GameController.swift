@@ -1,0 +1,215 @@
+import SpriteKit
+import SwiftUI
+import UIKit
+
+@MainActor
+final class GameController: ObservableObject {
+	// MARK: - Observable properties
+
+	@Published private(set) var phase: GamePhase = .ready
+	@Published private(set) var score = 0
+	@Published private(set) var highScore: Int
+	@Published private(set) var level = 1
+	@Published private(set) var clearedLines = 0
+	@Published var hapticsEnabled = true
+	@Published private(set) var selectedPlayerAppearance: PlayerAppearance
+	@Published private(set) var selectedManipulatorAppearance: ManipulatorAppearance
+	@Published private(set) var selectedBackgroundAppearance: BackgroundAppearance
+
+	// MARK: - Properties
+
+	private let settingsStore: any GameSettingsStore
+
+	lazy var scene: GameScene = {
+		let scene = GameScene(size: CGSize(width: 480, height: 640), controller: self)
+		scene.scaleMode = .aspectFit
+		return scene
+	}()
+
+	// MARK: - Init
+
+	init(settingsStore: any GameSettingsStore) {
+		self.settingsStore = settingsStore
+
+		let settings = settingsStore.load()
+		highScore = settings.highScore
+		selectedPlayerAppearance = settings.playerAppearance
+		selectedManipulatorAppearance = settings.manipulatorAppearance
+		selectedBackgroundAppearance = settings.backgroundAppearance
+	}
+
+	// MARK: - Computed properties
+
+	var overlayKicker: String {
+		switch phase {
+		case .ready: Localizations.Overlay.Ready.kicker
+		case .paused: Localizations.Overlay.Paused.kicker
+		case .knockedOut: ""
+		case .gameOver: Localizations.Overlay.Gameover.kicker
+		case .playing: ""
+		}
+	}
+
+	var overlayTitle: String {
+		switch phase {
+		case .ready: Localizations.Overlay.Ready.title
+		case .paused: Localizations.Overlay.Paused.title
+		case .knockedOut: ""
+		case .gameOver: Localizations.Overlay.Gameover.title
+		case .playing: ""
+		}
+	}
+
+	var overlayText: String {
+		switch phase {
+		case .ready: Localizations.Overlay.Ready.text
+		case .paused: Localizations.Overlay.Paused.text
+		case .knockedOut: ""
+		case .gameOver: Localizations.Overlay.Gameover.text(score)
+		case .playing: ""
+		}
+	}
+
+	var primaryActionTitle: String {
+		switch phase {
+		case .ready: Localizations.Overlay.Ready.action
+		case .paused: Localizations.Overlay.Paused.action
+		case .knockedOut: ""
+		case .gameOver: Localizations.Overlay.Gameover.action
+		case .playing: ""
+		}
+	}
+
+	var showsOverlay: Bool {
+		phase == .ready || phase == .paused || phase == .gameOver
+	}
+
+	var showsOverlaySettings: Bool {
+		phase == .ready || phase == .paused
+	}
+
+	// MARK: - Public methods
+
+	func performPrimaryAction() {
+		switch phase {
+		case .ready, .gameOver:
+			score = 0
+			level = 1
+			clearedLines = 0
+			phase = .playing
+			scene.startNewGame()
+			impact(.medium)
+		case .paused:
+			scene.resetTiming()
+			phase = .playing
+			impact(.light)
+		case .playing, .knockedOut:
+			break
+		}
+	}
+
+	func togglePause() {
+		switch phase {
+		case .playing:
+			scene.clearInput()
+			phase = .paused
+		case .paused:
+			scene.resetTiming()
+			phase = .playing
+		case .ready, .knockedOut, .gameOver:
+			break
+		}
+	}
+
+	func pauseIfNeeded() {
+		if phase == .playing {
+			scene.clearInput()
+			phase = .paused
+		}
+	}
+
+	func setDirection(_ direction: Int, isPressed: Bool) {
+		guard phase == .playing else {
+			scene.clearInput()
+			return
+		}
+		scene.setDirection(direction, isPressed: isPressed)
+	}
+
+	func pressJump() {
+		guard phase == .playing else { return }
+		scene.pressJump()
+		impact(.light)
+	}
+
+	func beginKnockout() {
+		guard phase == .playing else { return }
+		phase = .knockedOut
+		scene.clearInput()
+		guard hapticsEnabled else { return }
+		UINotificationFeedbackGenerator().notificationOccurred(.error)
+	}
+
+	func finishKnockout() {
+		guard phase == .knockedOut else { return }
+		finishGame()
+	}
+
+	func registerBox() {
+		score += 10 * level
+		impact(.soft)
+	}
+
+	func registerClearedLines(_ count: Int) {
+		score += count * count * 250 * level
+		clearedLines += count
+		level = min(20, 1 + clearedLines / 4)
+		impact(.rigid)
+	}
+
+	func endGame() {
+		guard phase == .playing else { return }
+		finishGame()
+	}
+
+	func selectPlayerAppearance(_ appearance: PlayerAppearance) {
+		selectedPlayerAppearance = appearance
+		settingsStore.savePlayerAppearance(appearance)
+		applySelectedAppearances()
+	}
+
+	func selectManipulatorAppearance(_ appearance: ManipulatorAppearance) {
+		selectedManipulatorAppearance = appearance
+		settingsStore.saveManipulatorAppearance(appearance)
+		applySelectedAppearances()
+	}
+
+	func selectBackgroundAppearance(_ appearance: BackgroundAppearance) {
+		selectedBackgroundAppearance = appearance
+		settingsStore.saveBackgroundAppearance(appearance)
+		applySelectedAppearances()
+	}
+
+	// MARK: - Private methods
+
+	private func finishGame() {
+		if score > highScore {
+			highScore = score
+			settingsStore.saveHighScore(score)
+		}
+		phase = .gameOver
+	}
+
+	private func applySelectedAppearances() {
+		scene.setAppearances(
+			player: selectedPlayerAppearance,
+			manipulator: selectedManipulatorAppearance,
+			background: selectedBackgroundAppearance
+		)
+	}
+
+		private func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {
+		guard hapticsEnabled else { return }
+		UIImpactFeedbackGenerator(style: style).impactOccurred()
+	}
+}

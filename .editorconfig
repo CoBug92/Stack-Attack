@@ -1,0 +1,10 @@
+root = true
+
+[*.swift]
+indent_style = tab
+tab_width = 4
+indent_size = 4
+
+[*.{md,yml,yaml,strings,stringsdict}]
+indent_style = space
+indent_size = 2
