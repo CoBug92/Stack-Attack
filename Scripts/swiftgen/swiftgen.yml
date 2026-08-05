@@ -1,0 +1,10 @@
+strings:
+  - inputs:
+      - "../../StackAttack/Resources/Localization/en.lproj"
+    outputs:
+      - templateName: structured-swift5
+        output: "../../StackAttack/Resources/Generated/Localizations.swift"
+        params:
+          enumName: Localizations
+          publicAccess: false
+          noComments: false
