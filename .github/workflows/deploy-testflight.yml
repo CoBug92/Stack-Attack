@@ -74,6 +74,7 @@ jobs:
           export PATH="$GEM_HOME/bin:$PATH"
 
           gem install --user-install bundler -v 2.5.3
+          bundle _2.5.3_ config set --local path "$GEM_HOME"
           bundle _2.5.3_ install
 
           {
