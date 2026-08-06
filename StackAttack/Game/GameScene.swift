@@ -13,9 +13,9 @@ final class GameScene: SKScene {
 		static let craneY: CGFloat = 608
 		static let craneSpeed: CGFloat = 150
 		static let payloadOffset: CGFloat = 53
-		static let idleBreathDuration: TimeInterval = 0.85
 		static let jumpSquashDuration: CGFloat = 0.06
 		static let jumpLiftPoseDuration: CGFloat = 0.18
+		static let pushPoseHoldDuration: CGFloat = 0.1
 	}
 
 	private enum Direction: CGFloat {
@@ -56,6 +56,7 @@ final class GameScene: SKScene {
 	private var lastPlayerDirection: Direction = .right
 	private var jumpSquashRemaining: CGFloat = 0
 	private var jumpLiftRemaining: CGFloat = 0
+	private var pushPoseRemaining: CGFloat = 0
 
 	private let worldLayer = SKNode()
 	private let backgroundLayer = SKNode()
@@ -64,10 +65,10 @@ final class GameScene: SKScene {
 	private let effectsLayer = SKNode()
 	private var craneNodes: [SKNode] = []
 	private let playerNode = SKNode()
+	private let craneMoveActionKey = "craneMove"
 	private let colors: [UIColor] = [
-		UIColor(resource: .Cargo.crateCoral), UIColor(resource: .Theme.warningGold),
-		UIColor(resource: .Cargo.crateTeal),
-		UIColor(resource: .Cargo.crateBlue), UIColor(resource: .Cargo.crateRose),
+		GamePalette.Cargo.crateCoral, GamePalette.Theme.warningGold, GamePalette.Cargo.crateTeal,
+		GamePalette.Cargo.crateBlue, GamePalette.Cargo.crateRose,
 	]
 
 	// MARK: - Init
@@ -75,7 +76,7 @@ final class GameScene: SKScene {
 	init(size: CGSize, controller: GameController) {
 		self.controller = controller
 		super.init(size: size)
-		backgroundColor = UIColor(resource: .Scene.backdrop)
+		backgroundColor = GamePalette.Scene.backdrop
 	}
 
 	@available(*, unavailable)
@@ -100,11 +101,10 @@ final class GameScene: SKScene {
 		isKnockoutAnimating = false
 		jumpSquashRemaining = 0
 		jumpLiftRemaining = 0
+		pushPoseRemaining = 0
 		playerNode.removeAllActions()
-		playerNode.zRotation = 0
 		playerNode.alpha = 1
 		playerNode.setScale(1)
-		startIdleBreathing()
 		lastPlayerDirection = .right
 		effectsLayer.removeAllChildren()
 		crateLayer.removeAllChildren()
@@ -139,7 +139,6 @@ final class GameScene: SKScene {
 		if world.snapshot.player.isSupported {
 			jumpSquashRemaining = Metrics.jumpSquashDuration
 			jumpLiftRemaining = Metrics.jumpLiftPoseDuration
-			playerNode.removeAction(forKey: "idleBreathing")
 		}
 		world.setInput(.jump, pressed: true)
 		world.setInput(.jump, pressed: false)
@@ -170,6 +169,7 @@ final class GameScene: SKScene {
 		guard delta > 0 else { return }
 		jumpSquashRemaining = max(0, jumpSquashRemaining - CGFloat(delta))
 		jumpLiftRemaining = max(0, jumpLiftRemaining - CGFloat(delta))
+		pushPoseRemaining = max(0, pushPoseRemaining - CGFloat(delta))
 		updateCrane(delta)
 		world.step(deltaTime: delta)
 		handle(world.drainEvents())
@@ -186,14 +186,14 @@ final class GameScene: SKScene {
 		ScenePrimitives.rect(
 			self,
 			CGSize(width: size.width, height: 7),
-			UIColor(resource: .Scene.groundEdge),
+			GamePalette.Scene.groundEdge,
 			CGPoint(x: size.width / 2, y: 44.5),
 			4
 		)
 		ScenePrimitives.rect(
 			self,
 			CGSize(width: size.width, height: 41),
-			UIColor(resource: .Scene.outline),
+			GamePalette.Scene.outline,
 			CGPoint(x: size.width / 2, y: 20.5),
 			-5
 		)
@@ -202,11 +202,11 @@ final class GameScene: SKScene {
 		worldLayer.addChild(effectsLayer)
 		ensureCraneCount(1)
 		buildPlayer(controller?.selectedPlayerAppearance ?? .loader)
-		let lines = label(Localizations.Hud.lines(0), .left)
+		let lines = label(hudLines(0), .left)
 		lines.name = "linesLabel"
 		lines.position = CGPoint(x: 20, y: 14)
 		addChild(lines)
-		let speed = label(Localizations.Hud.speed(1), .right)
+		let speed = label(hudSpeed(1), .right)
 		speed.name = "speedLabel"
 		speed.position = CGPoint(x: 460, y: 14)
 		addChild(speed)
@@ -264,10 +264,8 @@ final class GameScene: SKScene {
 	}
 
 	private func buildPlayer(_ appearance: PlayerAppearance) {
-		playerNode.removeAction(forKey: "idleBreathing")
 		PlayerVisualRenderer.build(in: playerNode, appearance: appearance)
 		if playerNode.parent == nil { worldLayer.addChild(playerNode) }
-		startIdleBreathing()
 	}
 
 	private func resetCrane() {
@@ -275,6 +273,7 @@ final class GameScene: SKScene {
 		for index in craneNodes.indices {
 			cranePayloads[index]?.removeFromParent()
 			cranePayloads[index] = nil
+			craneNodes[index].removeAction(forKey: craneMoveActionKey)
 			let direction: Direction = (index == 0 || Bool.random()) ? .right : .left
 			craneNodes[index].position = CGPoint(x: offscreen(direction), y: craneY(for: index))
 			craneStates[index] = .offscreen(initialDelay(for: index), direction)
@@ -283,12 +282,12 @@ final class GameScene: SKScene {
 
 	private func updateCrane(_ deltaTime: TimeInterval) {
 		ensureCraneCount(controller?.level ?? 1)
-		let delta = CGFloat(deltaTime)
 		let activeCraneCount = controller?.level ?? 1
 		for index in craneNodes.indices {
 			guard index < activeCraneCount else {
 				cranePayloads[index]?.removeFromParent()
 				cranePayloads[index] = nil
+				craneNodes[index].removeAction(forKey: craneMoveActionKey)
 				craneNodes[index].position = CGPoint(x: -120, y: craneY(for: index))
 				continue
 			}
@@ -300,24 +299,20 @@ final class GameScene: SKScene {
 					beginPass(index: index, direction: direction)
 				}
 			case .entering(let direction, let dropX):
-				craneNodes[index].position.x += direction.rawValue * Metrics.craneSpeed * delta
 				let didReachDrop =
-					direction == .right
-					? craneNodes[index].position.x >= dropX
-					: craneNodes[index].position.x <= dropX
+					craneNodes[index].action(forKey: craneMoveActionKey) == nil
+					|| abs(craneNodes[index].position.x - dropX) <= 0.5
 				if didReachDrop {
 					craneNodes[index].position.x = dropX
 					craneStates[index] = .dropping(direction)
 				}
 			case .dropping(let direction):
 				releasePayload(from: index)
+				let exitX = direction == .right ? size.width + 64 : -64
+				moveCrane(index: index, to: exitX)
 				craneStates[index] = .exiting(direction)
 			case .exiting(let direction):
-				craneNodes[index].position.x += direction.rawValue * Metrics.craneSpeed * delta
-				let didExit =
-					direction == .right
-					? craneNodes[index].position.x > size.width + 24
-					: craneNodes[index].position.x < -24
+				let didExit = craneNodes[index].action(forKey: craneMoveActionKey) == nil
 				if didExit {
 					let next = direction.reversed
 					craneNodes[index].position.x = offscreen(next)
@@ -335,6 +330,7 @@ final class GameScene: SKScene {
 		craneNodes[index].addChild(payload)
 		cranePayloads[index] = payload
 		let dropX = chooseDropX()
+		moveCrane(index: index, to: dropX)
 		craneStates[index] = .entering(direction, dropX)
 	}
 
@@ -387,14 +383,17 @@ final class GameScene: SKScene {
 			node.position = CGPoint(x: crate.frame.midX, y: crate.frame.midY)
 		}
 		playerNode.position = CGPoint(x: snapshot.player.frame.midX, y: snapshot.player.frame.midY)
+		if snapshot.player.isSupported, snapshot.player.pushDirection != 0 {
+			pushPoseRemaining = Metrics.pushPoseHoldDuration
+		}
 		if !isKnockoutAnimating {
 			playerNode.xScale = lastPlayerDirection.rawValue
 			updatePlayerAnimation(snapshot.player)
 		}
 		(childNode(withName: "linesLabel") as? SKLabelNode)?.text =
-			Localizations.Hud.lines(controller?.clearedLines ?? 0)
+			hudLines(controller?.clearedLines ?? 0)
 		(childNode(withName: "speedLabel") as? SKLabelNode)?.text =
-			Localizations.Hud.speed(controller?.level ?? 1)
+			hudSpeed(controller?.level ?? 1)
 	}
 
 	// MARK: - Animation
@@ -404,10 +403,11 @@ final class GameScene: SKScene {
 		isKnockoutAnimating = true
 		controller?.beginKnockout()
 		clearInput()
+		playerNode.removeAllActions()
 		for offset in -1...1 {
 			let star = label("✦", .center)
 			star.fontSize = 13
-			star.fontColor = UIColor(resource: .Theme.warningGold)
+			star.fontColor = GamePalette.Theme.warningGold
 			star.position = CGPoint(
 				x: playerNode.position.x + CGFloat(offset * 15), y: playerNode.position.y + 31)
 			effectsLayer.addChild(star)
@@ -417,22 +417,27 @@ final class GameScene: SKScene {
 			])
 			star.run(.sequence([orbit, .fadeOut(withDuration: 0.25), .removeFromParent()]))
 		}
-		let fall = SKAction.group([
-			.rotate(byAngle: playerNode.xScale < 0 ? -1.45 : 1.45, duration: 0.25),
-			.moveBy(x: 0, y: -7, duration: 0.25),
+		let direction: CGFloat = playerNode.xScale < 0 ? -1 : 1
+		let faint = SKAction.group([
+			.rotate(byAngle: direction * 1.1, duration: 0.2),
+			.moveBy(x: direction * 6, y: -9, duration: 0.2),
+			.fadeAlpha(to: 0.72, duration: 0.18),
 		])
-		let blink = SKAction.sequence([
-			.fadeAlpha(to: 0.5, duration: 0.12),
-			.fadeAlpha(to: 1, duration: 0.12),
-			.fadeAlpha(to: 0.5, duration: 0.12),
-			.fadeAlpha(to: 1, duration: 0.12),
-			.wait(forDuration: 0.3),
-		])
-		playerNode.run(.sequence([fall, blink])) { [weak self] in
+		let settle = SKAction.wait(forDuration: 0.34)
+		playerNode.run(.sequence([faint, settle])) { [weak self] in
 			guard let self, self.controller?.phase == .knockedOut else { return }
+			self.playerNode.alpha = 1
 			self.isKnockoutAnimating = false
 			self.controller?.finishKnockout()
 		}
+	}
+
+	private func hudLines(_ count: Int) -> String {
+		String(format: "РЯДЫ %02d", count)
+	}
+
+	private func hudSpeed(_ count: Int) -> String {
+		String(format: "СКОРОСТЬ %02d", count)
 	}
 
 	// MARK: - Helpers
@@ -441,45 +446,26 @@ final class GameScene: SKScene {
 		CargoVisualRenderer.makeCrate(side: Metrics.crateSize.width, color: color)
 	}
 
-	private func startIdleBreathing() {
-		guard !isKnockoutAnimating else { return }
-		let inhale = SKAction.group([
-			.scaleY(to: 1.035, duration: Metrics.idleBreathDuration)
-		])
-		let exhale = SKAction.group([
-			.scaleY(to: 1, duration: Metrics.idleBreathDuration)
-		])
-		playerNode.run(.repeatForever(.sequence([inhale, exhale])), withKey: "idleBreathing")
-	}
-
 	private func updatePlayerAnimation(_ player: GameWorld.PlayerSnapshot) {
 		updatePlayerPose(player)
-		let showingJumpSquash = jumpSquashRemaining > 0 && player.velocity.dy >= 0
-		if showingJumpSquash {
-			playerNode.removeAction(forKey: "idleBreathing")
-			playerNode.yScale = 0.9
-			playerNode.zRotation = 0
-			return
-		}
-		if player.isSupported {
-			if playerNode.action(forKey: "idleBreathing") == nil {
-				playerNode.yScale = 1
-				playerNode.zRotation = 0
-				startIdleBreathing()
-			}
-			return
-		}
+		playerNode.yScale = 1
+		playerNode.zRotation = 0
+	}
 
-		playerNode.removeAction(forKey: "idleBreathing")
-		let verticalStretch = player.velocity.dy > 0 ? 1.08 : 0.92
-		playerNode.yScale = verticalStretch
-		playerNode.zRotation = max(-0.13, min(0.13, player.velocity.dx / 1_200))
+	private func moveCrane(index: Int, to targetX: CGFloat) {
+		let craneNode = craneNodes[index]
+		craneNode.removeAction(forKey: craneMoveActionKey)
+		let distance = abs(targetX - craneNode.position.x)
+		guard distance > 0 else { return }
+		let duration = TimeInterval(distance / Metrics.craneSpeed)
+		craneNode.run(.moveTo(x: targetX, duration: duration), withKey: craneMoveActionKey)
 	}
 
 	private func updatePlayerPose(_ player: GameWorld.PlayerSnapshot) {
 		PlayerVisualRenderer.updatePose(
 			playerNode: playerNode,
 			player: player,
+			isPushing: pushPoseRemaining > 0 && player.isSupported,
 			jumpSquashRemaining: jumpSquashRemaining,
 			jumpLiftRemaining: jumpLiftRemaining
 		)
@@ -529,7 +515,7 @@ final class GameScene: SKScene {
 	private func dust(_ origin: CGPoint) {
 		for _ in 0..<5 {
 			let p = SKSpriteNode(
-				color: UIColor(resource: .Scene.particleDust), size: CGSize(width: 3, height: 3))
+				color: GamePalette.Scene.particleDust, size: CGSize(width: 3, height: 3))
 			p.position = origin
 			effectsLayer.addChild(p)
 			let movement = SKAction.group([
@@ -544,7 +530,7 @@ final class GameScene: SKScene {
 		let node = SKLabelNode(fontNamed: "Menlo-Bold")
 		node.text = text
 		node.fontSize = 9
-		node.fontColor = UIColor(resource: .Scene.hudLabel)
+		node.fontColor = GamePalette.Scene.hudLabel
 		node.horizontalAlignmentMode = alignment
 		node.verticalAlignmentMode = .center
 		return node

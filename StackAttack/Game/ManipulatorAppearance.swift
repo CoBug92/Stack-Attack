@@ -11,17 +11,17 @@ enum ManipulatorAppearance: String, CaseIterable, Identifiable {
 extension ManipulatorAppearance {
 	var title: String {
 		switch self {
-		case .gantry: Localizations.Appearance.Manipulator.Gantry.title
-		case .magnetic: Localizations.Appearance.Manipulator.Magnetic.title
-		case .drone: Localizations.Appearance.Manipulator.Drone.title
+		case .gantry: "Портальный манипулятор"
+		case .magnetic: "Магнитный манипулятор"
+		case .drone: "Грузовой дрон"
 		}
 	}
 
 	var description: String {
 		switch self {
-		case .gantry: Localizations.Appearance.Manipulator.Gantry.description
-		case .magnetic: Localizations.Appearance.Manipulator.Magnetic.description
-		case .drone: Localizations.Appearance.Manipulator.Drone.description
+		case .gantry: "Стальной захват на верхнем тросе"
+		case .magnetic: "Неоновый магнитный подъёмник"
+		case .drone: "Автономный дрон с роторами"
 		}
 	}
 }

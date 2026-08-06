@@ -251,7 +251,7 @@ struct GameWorld {
 		let landedCrate = resolveCrates(previousFrames: previousCrates, dt: dt)
 		detectKnockout(previousPlayer: previousPlayer, previousCrates: previousCrates)
 		guard state == .playing else { return landedCrate }
-		resolvePlayer(previousFrame: previousPlayer, dt: dt)
+		resolvePlayer(previousFrame: previousPlayer, previousCrates: previousCrates, dt: dt)
 		clampBodiesToPlayfield()
 		return landedCrate
 	}
@@ -332,13 +332,27 @@ struct GameWorld {
 		}
 	}
 
-	private mutating func resolvePlayer(previousFrame: CGRect, dt: CGFloat) {
+	private mutating func resolvePlayer(previousFrame: CGRect, previousCrates: [CGRect], dt: CGFloat) {
 		let floor = configuration.playfield.minY
 		player.supported = false
+		var supportDeltaX: CGFloat = 0
 		if player.frame.minY <= floor, player.velocity.dy <= 0 {
 			player.position.y = floor + player.size.height / 2
 			player.velocity.dy = 0
 			player.supported = true
+		}
+
+		if !player.supported, player.velocity.dy <= 0,
+			let supportIndex = supportingCrateIndex(
+				for: player.frame,
+				previousFrame: previousFrame,
+				previousCrates: previousCrates
+			) {
+			let crateFrame = crates[supportIndex].frame
+			player.position.y = crateFrame.maxY + player.size.height / 2
+			player.velocity.dy = 0
+			player.supported = true
+			supportDeltaX = crateFrame.midX - previousCrates[supportIndex].midX
 		}
 
 		for index in crates.indices {
@@ -354,6 +368,7 @@ struct GameWorld {
 				player.position.y = crateFrame.maxY + player.size.height / 2
 				player.velocity.dy = 0
 				player.supported = true
+				supportDeltaX = crates[index].frame.midX - previousCrates[index].midX
 				continue
 			}
 			guard verticalOverlap(player.frame, crateFrame) > 2 else { continue }
@@ -384,6 +399,29 @@ struct GameWorld {
 				}
 			}
 		}
+		if player.supported, supportDeltaX != 0 {
+			player.position.x += supportDeltaX
+		}
+	}
+
+	private func supportingCrateIndex(
+		for playerFrame: CGRect,
+		previousFrame: CGRect,
+		previousCrates: [CGRect]
+	) -> Int? {
+		let minimumOverlap = player.size.width * 0.35
+		let supportSnapTolerance: CGFloat = 3
+		let previousSupportTolerance: CGFloat = 1
+		return crates.indices
+			.filter { index in
+				let crateFrame = crates[index].frame
+				return horizontalOverlap(playerFrame, crateFrame) > minimumOverlap
+					&& previousFrame.minY >= previousCrates[index].maxY - previousSupportTolerance
+					&& playerFrame.minY <= crateFrame.maxY + supportSnapTolerance
+			}
+			.max { lhs, rhs in
+				crates[lhs].frame.maxY < crates[rhs].frame.maxY
+			}
 	}
 
 	private mutating func tryShiftUpperCrate(direction: CGFloat) -> Bool {

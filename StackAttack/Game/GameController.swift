@@ -42,40 +42,41 @@ final class GameController: ObservableObject {
 
 	var overlayKicker: String {
 		switch phase {
-		case .ready: Localizations.Overlay.Ready.kicker
-		case .paused: Localizations.Overlay.Paused.kicker
+		case .ready: "НОВАЯ СМЕНА"
+		case .paused: "СМЕНА ПРИОСТАНОВЛЕНА"
 		case .knockedOut: ""
-		case .gameOver: Localizations.Overlay.Gameover.kicker
+		case .gameOver: "СМЕНА ОКОНЧЕНА"
 		case .playing: ""
 		}
 	}
 
 	var overlayTitle: String {
 		switch phase {
-		case .ready: Localizations.Overlay.Ready.title
-		case .paused: Localizations.Overlay.Paused.title
+		case .ready: "Наведи порядок\nна складе"
+		case .paused: "Пауза"
 		case .knockedOut: ""
-		case .gameOver: Localizations.Overlay.Gameover.title
+		case .gameOver: "Склад переполнен"
 		case .playing: ""
 		}
 	}
 
 	var overlayText: String {
 		switch phase {
-		case .ready: Localizations.Overlay.Ready.text
-		case .paused: Localizations.Overlay.Paused.text
+		case .ready: "Толкай ящики и собирай полные ряды. Не дай грузу придавить рабочего."
+		case .paused: "Груз останется на месте. Возвращайся, когда будешь готов."
 		case .knockedOut: ""
-		case .gameOver: Localizations.Overlay.Gameover.text(score)
+		case .gameOver:
+			"Итоговый счёт: \(score). Попробуй расчистить больше полных рядов."
 		case .playing: ""
 		}
 	}
 
 	var primaryActionTitle: String {
 		switch phase {
-		case .ready: Localizations.Overlay.Ready.action
-		case .paused: Localizations.Overlay.Paused.action
+		case .ready: "НАЧАТЬ ИГРУ"
+		case .paused: "ПРОДОЛЖИТЬ"
 		case .knockedOut: ""
-		case .gameOver: Localizations.Overlay.Gameover.action
+		case .gameOver: "ЕЩЁ РАЗ"
 		case .playing: ""
 		}
 	}
@@ -208,7 +209,7 @@ final class GameController: ObservableObject {
 		)
 	}
 
-		private func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {
+	private func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {
 		guard hapticsEnabled else { return }
 		UIImpactFeedbackGenerator(style: style).impactOccurred()
 	}

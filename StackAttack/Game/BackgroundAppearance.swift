@@ -12,19 +12,19 @@ enum BackgroundAppearance: String, CaseIterable, Identifiable {
 extension BackgroundAppearance {
 	var title: String {
 		switch self {
-		case .port: Localizations.Appearance.Background.Port.title
-		case .nightWarehouse: Localizations.Appearance.Background.Warehouse.title
-		case .sunsetYard: Localizations.Appearance.Background.Sunset.title
-		case .cyberCity: Localizations.Appearance.Background.Cyber.title
+		case .port: "Порт №35"
+		case .nightWarehouse: "Ночной склад"
+		case .sunsetYard: "Терминал на закате"
+		case .cyberCity: "Кибер-город"
 		}
 	}
 
 	var description: String {
 		switch self {
-		case .port: Localizations.Appearance.Background.Port.description
-		case .nightWarehouse: Localizations.Appearance.Background.Warehouse.description
-		case .sunsetYard: Localizations.Appearance.Background.Sunset.description
-		case .cyberCity: Localizations.Appearance.Background.Cyber.description
+		case .port: "Контейнерный порт у воды"
+		case .nightWarehouse: "Стеллажи и холодный рабочий свет"
+		case .sunsetYard: "Тёплый свет над грузовым двором"
+		case .cyberCity: "Дождливые неоновые небоскрёбы"
 		}
 	}
 }

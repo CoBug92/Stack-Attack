@@ -12,19 +12,19 @@ enum PlayerAppearance: String, CaseIterable, Identifiable {
 extension PlayerAppearance {
 	var title: String {
 		switch self {
-		case .loader: Localizations.Appearance.Player.Loader.title
-		case .nightLoader: Localizations.Appearance.Player.Night.title
-		case .veteranLoader: Localizations.Appearance.Player.Veteran.title
-		case .cyberLoader: Localizations.Appearance.Player.Cyber.title
+		case .loader: "Грузчик"
+		case .nightLoader: "Ночной грузчик"
+		case .veteranLoader: "Грузчик-ветеран"
+		case .cyberLoader: "Кибер-грузчица"
 		}
 	}
 
 	var description: String {
 		switch self {
-		case .loader: Localizations.Appearance.Player.Loader.description
-		case .nightLoader: Localizations.Appearance.Player.Night.description
-		case .veteranLoader: Localizations.Appearance.Player.Veteran.description
-		case .cyberLoader: Localizations.Appearance.Player.Cyber.description
+		case .loader: "Каска, жилет и рабочие перчатки"
+		case .nightLoader: "Светоотражающий жилет для ночной смены"
+		case .veteranLoader: "Потёртая каска и рабочая форма"
+		case .cyberLoader: "Неоновый визор, антенна и персональный дрон"
 		}
 	}
 }

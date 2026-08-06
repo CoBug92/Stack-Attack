@@ -22,7 +22,6 @@ targets:
         INFOPLIST_KEY_UIRequiresFullScreen: true
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown
-        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         EXTRACT_APP_INTENTS_METADATA: false
       configs:
         Debug:
@@ -34,11 +33,6 @@ targets:
     scheme:
       testTargets:
         - ${TARGET_NAME}UnitTests
-    preBuildScripts:
-      - script: ./Scripts/swiftgen/swiftgen.sh
-        name: Run SwiftGen
-        outputFiles:
-          - $(SRCROOT)/StackAttack/Resources/Generated/Localizations.swift
     postCompileScripts:
       - script: ./Scripts/swiftlint/swiftlint.sh
         name: Run SwiftLint

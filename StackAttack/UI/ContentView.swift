@@ -7,19 +7,30 @@ struct ContentView: View {
 	@Environment(\.scenePhase) private var scenePhase
 	@StateObject private var game = GameController(settingsStore: UserDefaultsGameSettingsStore())
 
-	private let lime = Color(.Button.primary)
-	private let orange = Color(.Theme.accentOrange)
+	private let lime = Color(red: 0.776, green: 0.937, blue: 0.38)
+	private let orange = Color(red: 1, green: 0.51, blue: 0.28)
+	private let canvas = Color(red: 0.035, green: 0.067, blue: 0.11)
+	private let atmosphere = Color(red: 0.12, green: 0.22, blue: 0.28)
+	private let playfieldBackground = Color(red: 0.05, green: 0.09, blue: 0.14)
+	private let hudSurface = Color(red: 0.06, green: 0.1, blue: 0.15)
+	private let hudPanel = Color(red: 0.065, green: 0.11, blue: 0.165)
+	private let hudDivider = Color(red: 0.18, green: 0.26, blue: 0.31)
+	private let hudMuted = Color(red: 0.57, green: 0.65, blue: 0.61)
+	private let hudValue = Color(red: 0.56, green: 0.65, blue: 0.61)
 
 	// MARK: - Body
 
 	var body: some View {
 		GeometryReader { proxy in
+			let horizontalInset: CGFloat = 14
+			let availableGameWidth = max(proxy.size.width - (horizontalInset * 2), 0)
+
 			ZStack {
-				Color(.Theme.canvas)
+				canvas
 					.ignoresSafeArea()
 
 				LinearGradient(
-					colors: [Color(.Theme.atmosphere), Color(.Theme.clear)],
+					colors: [atmosphere, .clear],
 					startPoint: .top,
 					endPoint: .center
 				)
@@ -32,10 +43,13 @@ struct ContentView: View {
 						.padding(.bottom, 12)
 
 					scoreboard
-						.padding(.horizontal, 14)
+						.padding(.horizontal, horizontalInset)
 
-					gameArea(maxHeight: proxy.size.height * 0.7)
-						.padding(.horizontal, 14)
+					gameArea(
+						maxWidth: availableGameWidth,
+						maxHeight: proxy.size.height * 0.7
+					)
+					.padding(.horizontal, horizontalInset)
 
 					controls
 						.padding(.top, 14)
@@ -69,51 +83,54 @@ struct ContentView: View {
 	private var header: some View {
 		HStack(alignment: .center) {
 			VStack(alignment: .leading, spacing: 2) {
-				Text(Localizations.Hud.port)
+				Text("ПОРТ №35")
 					.font(.system(size: 9, weight: .bold, design: .monospaced))
 					.tracking(2)
-					.foregroundStyle(orange)
+					.foregroundColor(orange)
 				Text("STACK ATTACK")
 					.font(.system(size: 25, weight: .black, design: .monospaced))
 					.tracking(-1.5)
+					.foregroundColor(.white)
 			}
 			Spacer()
 			Button(action: game.togglePause) {
 				Image(systemName: game.phase == .paused ? "play.fill" : "pause.fill")
 					.font(.system(size: 14, weight: .black))
 			}
-			.foregroundStyle(Color("HUD/muted"))
+			.buttonStyle(.plain)
+			.foregroundColor(hudMuted)
 			.frame(width: 38, height: 36)
-			.background(Color("HUD/surface"))
+			.background(hudSurface)
 			.clipShape(RoundedRectangle(cornerRadius: 4))
 			.overlay {
 				RoundedRectangle(cornerRadius: 4)
-					.stroke(Color("HUD/divider"))
+					.stroke(hudDivider)
 			}
 			.disabled(game.phase == .ready || game.phase == .knockedOut || game.phase == .gameOver)
 		}
+		.foregroundColor(.white)
 	}
 
 	private var scoreboard: some View {
 		HStack {
 			scoreItem(
-				label: Localizations.Hud.score, value: padded(game.score, length: 6), alignment: .leading)
+				label: "СЧЁТ", value: padded(game.score, length: 6), alignment: .leading)
 			Spacer()
 			scoreItem(
-				label: Localizations.Hud.highScore,
+				label: "РЕКОРД",
 				value: padded(max(game.score, game.highScore), length: 6),
 				alignment: .center
 			)
 			Spacer()
 			scoreItem(
-				label: Localizations.Hud.level, value: padded(game.level, length: 2), alignment: .trailing)
+				label: "УРОВЕНЬ", value: padded(game.level, length: 2), alignment: .trailing)
 		}
 		.padding(.horizontal, 13)
 		.padding(.vertical, 10)
-		.background(Color("HUD/panel"))
+		.background(hudPanel)
 		.overlay(alignment: .top) {
 			Rectangle()
-				.fill(Color("HUD/divider"))
+				.fill(hudDivider)
 				.frame(height: 1)
 		}
 	}
@@ -123,25 +140,25 @@ struct ContentView: View {
 			Text(label)
 				.font(.system(size: 8, weight: .regular, design: .monospaced))
 				.tracking(1.2)
-				.foregroundStyle(Color("HUD/value"))
+				.foregroundColor(hudValue)
 			Text(value)
 				.font(.system(size: 17, weight: .bold, design: .monospaced))
 				.tracking(1.2)
-				.foregroundStyle(lime)
+				.foregroundColor(lime)
 				.contentTransition(.numericText())
 		}
 	}
 
-	private func gameArea(maxHeight: CGFloat) -> some View {
+	private func gameArea(maxWidth: CGFloat, maxHeight: CGFloat) -> some View {
 		ZStack {
 			SpriteView(scene: game.scene, options: [.ignoresSiblingOrder])
 				.aspectRatio(3 / 4, contentMode: .fit)
-				.frame(maxHeight: maxHeight)
-				.background(Color(.Theme.canvas))
+				.frame(maxWidth: maxWidth, maxHeight: maxHeight)
+				.background(playfieldBackground)
 				.clipShape(RoundedRectangle(cornerRadius: 4))
 				.overlay {
 					RoundedRectangle(cornerRadius: 4)
-						.stroke(Color("HUD/divider"))
+						.stroke(hudDivider)
 				}
 
 			if game.showsOverlay {
@@ -158,14 +175,13 @@ struct ContentView: View {
 		HStack(spacing: 12) {
 			HoldControlButton(
 				symbol: "arrow.left",
-				label: Localizations.Control.left,
+				label: "Влево",
 				onPressedChanged: { game.setDirection(-1, isPressed: $0) }
 			)
-			HoldControlButton(
-				symbol: "arrow.up", label: Localizations.Control.jump, onTap: game.pressJump)
+			HoldControlButton(symbol: "arrow.up", label: "Прыжок", onTap: game.pressJump)
 			HoldControlButton(
 				symbol: "arrow.right",
-				label: Localizations.Control.right,
+				label: "Вправо",
 				onPressedChanged: { game.setDirection(1, isPressed: $0) }
 			)
 		}
