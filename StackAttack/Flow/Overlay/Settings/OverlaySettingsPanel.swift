@@ -10,7 +10,7 @@ struct OverlaySettingsPanel: View {
 	var body: some View {
 		VStack(alignment: .leading, spacing: Margin.x7) {
 			AppearanceMenuSection(
-				title: .loader,
+				title: Localizations.Settings.player,
 				optionCount: PlayerAppearance.allCases.count,
 				previewContent: .player(game.selectedPlayerAppearance),
 				selectedTitle: game.selectedPlayerAppearance.title,
@@ -19,7 +19,7 @@ struct OverlaySettingsPanel: View {
 			)
 
 			AppearanceMenuSection(
-				title: .manipulator,
+				title: Localizations.Settings.manipulator,
 				optionCount: ManipulatorAppearance.allCases.count,
 				previewContent: .manipulator(game.selectedManipulatorAppearance),
 				selectedTitle: game.selectedManipulatorAppearance.title,
@@ -28,7 +28,7 @@ struct OverlaySettingsPanel: View {
 			)
 
 			AppearanceMenuSection(
-				title: .background,
+				title: Localizations.Settings.background,
 				optionCount: BackgroundAppearance.allCases.count,
 				previewContent: .background(game.selectedBackgroundAppearance),
 				selectedTitle: game.selectedBackgroundAppearance.title,
@@ -46,12 +46,4 @@ struct OverlaySettingsPanel: View {
 	OverlaySettingsPanel(game: FlowPreviewSupport.makeGame(overlayScreen: .settings))
 		.padding(Margin.x8)
 		.background(FlowPreviewSupport.canvas)
-}
-
-// MARK: - Constants
-
-private extension String {
-	static let loader = "Грузчик"
-	static let manipulator = "Манипулятор"
-	static let background = "Задний фон"
 }

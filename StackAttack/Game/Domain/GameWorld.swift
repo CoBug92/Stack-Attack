@@ -15,6 +15,7 @@ struct GameWorld {
 		var airAcceleration: CGFloat
 		var jumpSpeed: CGFloat
 		var pushSpeed: CGFloat
+		var allowsGameOver: Bool
 
 		static let `default` = Configuration(
 			playfield: CGRect(x: 0, y: 0, width: 360, height: 640),
@@ -25,7 +26,8 @@ struct GameWorld {
 			groundAcceleration: 1_400,
 			airAcceleration: 650,
 			jumpSpeed: 480,
-			pushSpeed: 115
+			pushSpeed: 115,
+			allowsGameOver: true
 		)
 	}
 
@@ -281,7 +283,8 @@ struct GameWorld {
 					landedCrate = true
 					events.append(.crateLanded(id: crates[index].id))
 				}
-				if crates[index].frame.maxY >= configuration.playfield.maxY - 0.5 {
+				if configuration.allowsGameOver,
+					crates[index].frame.maxY >= configuration.playfield.maxY - 0.5 {
 					state = .gameOver
 					leftHeld = false
 					rightHeld = false
@@ -314,6 +317,7 @@ struct GameWorld {
 	// MARK: - Collision resolution
 
 	private mutating func detectKnockout(previousPlayer: CGRect, previousCrates: [CGRect]) {
+		guard configuration.allowsGameOver else { return }
 		for index in crates.indices {
 			let crate = crates[index]
 			guard crate.velocity.dy < -40,

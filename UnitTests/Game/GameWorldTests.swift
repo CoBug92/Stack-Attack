@@ -52,6 +52,35 @@ final class GameWorldTests: XCTestCase {
 		XCTAssertEqual(side.snapshot.state, .playing)
 	}
 
+	func testScreenshotConfigurationPreventsFallingCrateFromEndingGame() {
+		var config = GameWorld.Configuration.default
+		config.allowsGameOver = false
+		var world = GameWorld(configuration: config)
+		let player = world.snapshot.player.frame
+		world.spawnCrate(x: player.midX, y: player.maxY + 30, velocity: CGVector(dx: 0, dy: -300))
+
+		world.step(deltaTime: 0.1)
+
+		XCTAssertEqual(world.snapshot.state, .playing)
+		XCTAssertFalse(world.drainEvents().contains(.playerKnockedOut))
+	}
+
+	func testScreenshotConfigurationPreventsStackFromEndingGame() {
+		var config = GameWorld.Configuration.default
+		config.playfield = CGRect(x: 0, y: 0, width: 360, height: 40)
+		config.allowsGameOver = false
+		var world = GameWorld(configuration: config)
+		world.spawnCrate(
+			x: config.playfield.maxX - config.crateSize.width / 2,
+			y: config.crateSize.height / 2
+		)
+
+		world.step(deltaTime: 0.1)
+
+		XCTAssertEqual(world.snapshot.state, .playing)
+		XCTAssertFalse(world.drainEvents().contains(.stackReachedTop))
+	}
+
 	func testSingleGroundedCrateCanBePushedContinuously() throws {
 		var config = GameWorld.Configuration.default
 		config.playfield = CGRect(x: 0, y: 0, width: 240, height: 400)

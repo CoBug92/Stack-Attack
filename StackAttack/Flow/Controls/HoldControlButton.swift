@@ -51,7 +51,7 @@ struct HoldControlButton: View {
 #Preview {
 	HoldControlButton(
 		symbol: SFSymbols.arrowUp,
-		label: "Прыжок",
+		label: Localizations.Control.jump,
 		onTap: {}
 	)
 	.padding(Margin.x8)

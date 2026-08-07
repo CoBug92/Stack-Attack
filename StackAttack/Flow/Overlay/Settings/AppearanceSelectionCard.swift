@@ -58,14 +58,14 @@ struct AppearanceSelectionCard: View {
 #Preview {
 	VStack(spacing: Margin.x2) {
 		AppearanceSelectionCard(
-			title: "Кибер-грузчица",
-			description: "Неоновый визор, антенна и персональный дрон.",
+			title: Localizations.Appearance.Player.Cyber.title,
+			description: Localizations.Appearance.Player.Cyber.description,
 			isSelected: true
 		)
 
 		AppearanceSelectionCard(
-			title: "Грузчик-ветеран",
-			description: "Потёртая каска и рабочая форма.",
+			title: Localizations.Appearance.Player.Veteran.title,
+			description: Localizations.Appearance.Player.Veteran.description,
 			isSelected: false
 		)
 	}

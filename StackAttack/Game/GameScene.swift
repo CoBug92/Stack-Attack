@@ -34,18 +34,7 @@ final class GameScene: SKScene {
 	// MARK: - Properties
 
 	private weak var controller: GameController?
-	private var world = GameWorld(
-		configuration: .init(
-			playfield: Metrics.field,
-			playerSize: Metrics.playerSize,
-			crateSize: Metrics.crateSize,
-			gravity: 1_500,
-			runSpeed: 150,
-			groundAcceleration: 1_400,
-			airAcceleration: 650,
-			jumpSpeed: 430,
-			pushSpeed: 115
-		))
+	private var world: GameWorld
 	private var lastUpdateTime: TimeInterval = 0
 	private var craneStates: [CraneState] = []
 	private var crateNodes: [Int: SKNode] = [:]
@@ -73,8 +62,22 @@ final class GameScene: SKScene {
 
 	// MARK: - Init
 
-	init(size: CGSize, controller: GameController) {
+	init(size: CGSize, controller: GameController, allowsGameOver: Bool) {
 		self.controller = controller
+		world = GameWorld(
+			configuration: .init(
+				playfield: Metrics.field,
+				playerSize: Metrics.playerSize,
+				crateSize: Metrics.crateSize,
+				gravity: 1_500,
+				runSpeed: 150,
+				groundAcceleration: 1_400,
+				airAcceleration: 650,
+				jumpSpeed: 430,
+				pushSpeed: 115,
+				allowsGameOver: allowsGameOver
+			)
+		)
 		super.init(size: size)
 		backgroundColor = GamePalette.Scene.backdrop
 	}
@@ -433,11 +436,11 @@ final class GameScene: SKScene {
 	}
 
 	private func hudLines(_ count: Int) -> String {
-		String(format: "РЯДЫ %02d", count)
+		Localizations.Hud.lines(count)
 	}
 
 	private func hudSpeed(_ count: Int) -> String {
-		String(format: "СКОРОСТЬ %02d", count)
+		Localizations.Hud.speed(count)
 	}
 
 	// MARK: - Helpers

@@ -66,19 +66,7 @@ struct AppearanceMenuSection: View {
 	// MARK: - Private methods
 
 	private func optionsLabel(_ count: Int) -> String {
-		let remainder10 = count % 10
-		let remainder100 = count % 100
-
-		let suffix: String
-		if remainder10 == .singularVariantRemainder && remainder100 != .singularVariantException {
-			suffix = .variantSingular
-		} else if Int.fewVariantRemainders.contains(remainder10) && !Int.fewVariantExceptions.contains(remainder100) {
-			suffix = .variantFew
-		} else {
-			suffix = .variantMany
-		}
-
-		return "\(count) \(suffix)"
+		Localizations.Settings.options(count)
 	}
 }
 
@@ -86,11 +74,11 @@ struct AppearanceMenuSection: View {
 
 #Preview {
 	AppearanceMenuSection(
-		title: "Грузчик",
+		title: Localizations.Settings.player,
 		optionCount: 3,
 		previewContent: .player(.cyberLoader),
-		selectedTitle: "Кибер-грузчица",
-		selectedDescription: "Неоновый визор, антенна и персональный дрон."
+		selectedTitle: Localizations.Appearance.Player.Cyber.title,
+		selectedDescription: Localizations.Appearance.Player.Cyber.description
 	) {}
 	.padding(Margin.x8)
 	.background(FlowPreviewSupport.canvas)
@@ -107,17 +95,4 @@ private extension CGFloat {
 
 private extension Double {
 	static let appearanceMenuSurfaceOpacity = 0.92
-}
-
-private extension Int {
-	static let singularVariantRemainder = 1
-	static let singularVariantException = 11
-	static let fewVariantRemainders = 2...4
-	static let fewVariantExceptions = 12...14
-}
-
-private extension String {
-	static let variantSingular = "вариант"
-	static let variantFew = "варианта"
-	static let variantMany = "вариантов"
 }

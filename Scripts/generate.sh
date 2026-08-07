@@ -22,5 +22,8 @@ fi
 echo "Prepare Generated directory"
 mkdir -p "$PROJECT_DIR/$PROJECT_NAME/Resources/Generated"
 
+echo "Run swiftgen"
+"$SCRIPT_DIR/swiftgen/swiftgen.sh"
+
 echo "Run xcodegen"
 "$SCRIPT_DIR/xcodegen/xcodegen.sh"

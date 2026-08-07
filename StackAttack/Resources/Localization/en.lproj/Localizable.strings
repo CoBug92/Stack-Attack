@@ -1,3 +1,4 @@
+"app.title" = "STACK ATTACK";
 "appearance.player.loader.title" = "Loader";
 "appearance.player.night.title" = "Night loader";
 "appearance.player.veteran.title" = "Veteran loader";
@@ -32,6 +33,7 @@
 "overlay.ready.action" = "START GAME";
 "overlay.paused.action" = "CONTINUE";
 "overlay.gameover.action" = "PLAY AGAIN";
+"overlay.settings.action" = "SETTINGS";
 "hud.port" = "PORT No. 35";
 "hud.score" = "SCORE";
 "hud.highScore" = "BEST";
@@ -45,5 +47,15 @@
 "settings.player" = "Loader";
 "settings.manipulator" = "Manipulator";
 "settings.background" = "Background";
+"settings.appearance.title" = "Appearance setup";
+"settings.appearance.description" = "Choose the loader, manipulator, and background for the next shift.";
+"settings.navigation.back" = "BACK";
+"settings.navigation.backToSections" = "TO SECTIONS";
+"settings.playerSelection.title" = "Choose loader";
+"settings.playerSelection.description" = "Compare the loaders and choose who starts the next shift.";
+"settings.manipulatorSelection.title" = "Choose manipulator";
+"settings.manipulatorSelection.description" = "Inspect each manipulator and pick the delivery style that fits best.";
+"settings.backgroundSelection.title" = "Choose background";
+"settings.backgroundSelection.description" = "Preview each location and choose the warehouse backdrop.";
 "settings.haptics" = "Vibration";
 "settings.haptics.description" = "Haptic feedback for jumping, scoring, and collisions.";

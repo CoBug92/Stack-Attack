@@ -32,7 +32,7 @@ struct GameOverlaySecondaryButton: View {
 
 #Preview {
 	GameOverlaySecondaryButton(
-		title: "НАСТРОЙКИ",
+		title: Localizations.Overlay.Settings.action,
 		border: FlowPreviewSupport.border,
 		surface: FlowPreviewSupport.surface,
 		action: {}

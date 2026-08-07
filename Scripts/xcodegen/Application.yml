@@ -36,6 +36,11 @@ targets:
     scheme:
       testTargets:
         - ${TARGET_NAME}UnitTests
+    preBuildScripts:
+      - script: ./Scripts/swiftgen/swiftgen.sh
+        name: Run SwiftGen
+        outputFiles:
+          - $(SRCROOT)/StackAttack/Resources/Generated/Localizations.swift
     postCompileScripts:
       - script: ./Scripts/swiftlint/swiftlint.sh
         name: Run SwiftLint

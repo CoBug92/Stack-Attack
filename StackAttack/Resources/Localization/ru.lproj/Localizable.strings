@@ -1,3 +1,4 @@
+"app.title" = "STACK ATTACK";
 "appearance.player.loader.title" = "Грузчик";
 "appearance.player.night.title" = "Ночной грузчик";
 "appearance.player.veteran.title" = "Грузчик-ветеран";
@@ -32,6 +33,7 @@
 "overlay.ready.action" = "НАЧАТЬ ИГРУ";
 "overlay.paused.action" = "ПРОДОЛЖИТЬ";
 "overlay.gameover.action" = "ЕЩЁ РАЗ";
+"overlay.settings.action" = "НАСТРОЙКИ";
 "hud.port" = "ПОРТ №35";
 "hud.score" = "СЧЁТ";
 "hud.highScore" = "РЕКОРД";
@@ -45,5 +47,15 @@
 "settings.player" = "Грузчик";
 "settings.manipulator" = "Манипулятор";
 "settings.background" = "Задний фон";
+"settings.appearance.title" = "Выбор скинов";
+"settings.appearance.description" = "Подбери грузчика, манипулятор и задний фон для следующей смены.";
+"settings.navigation.back" = "НАЗАД";
+"settings.navigation.backToSections" = "К РАЗДЕЛАМ";
+"settings.playerSelection.title" = "Выбор грузчика";
+"settings.playerSelection.description" = "Сравни облики грузчика и выбери, кто выйдет на следующую смену.";
+"settings.manipulatorSelection.title" = "Выбор манипулятора";
+"settings.manipulatorSelection.description" = "Посмотри на каждый манипулятор отдельно и выбери подходящий стиль доставки.";
+"settings.backgroundSelection.title" = "Выбор фона";
+"settings.backgroundSelection.description" = "Проверь атмосферу каждой площадки и выбери фон для склада.";
 "settings.haptics" = "Вибрация";
 "settings.haptics.description" = "Тактильный отклик для прыжка, очков и столкновений.";

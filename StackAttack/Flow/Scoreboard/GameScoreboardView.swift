@@ -10,7 +10,7 @@ struct GameScoreboardView: View {
 	var body: some View {
 		HStack {
 			GameScoreItemView(
-				label: .score,
+				label: Localizations.Hud.score,
 				value: padded(game.score, length: .scoreLength),
 				alignment: .leading
 			)
@@ -18,7 +18,7 @@ struct GameScoreboardView: View {
 			Spacer()
 
 			GameScoreItemView(
-				label: .record,
+				label: Localizations.Hud.highScore,
 				value: padded(max(game.score, game.highScore), length: .scoreLength),
 				alignment: .center
 			)
@@ -26,7 +26,7 @@ struct GameScoreboardView: View {
 			Spacer()
 
 			GameScoreItemView(
-				label: .level,
+				label: Localizations.Hud.level,
 				value: padded(game.level, length: .levelLength),
 				alignment: .trailing
 			)
@@ -35,7 +35,7 @@ struct GameScoreboardView: View {
 		.padding(.vertical, Margin.x5)
 		.background(Color.HUD.panel)
 		.overlay(alignment: .top) {
-            Rectangle()
+			Rectangle()
 				.fill(Color.HUD.divider)
 				.frame(height: .scoreboardDividerHeight)
 		}
@@ -51,26 +51,20 @@ struct GameScoreboardView: View {
 // MARK: - Constants
 
 private extension CGFloat {
-    static let scoreboardDividerHeight: CGFloat = 1
+	static let scoreboardDividerHeight: CGFloat = 1
 }
 
 private extension Int {
-    static let scoreLength = 6
-    static let levelLength = 2
-}
-
-private extension String {
-    static let score = "СЧЁТ"
-    static let record = "РЕКОРД"
-    static let level = "УРОВЕНЬ"
+	static let scoreLength = 6
+	static let levelLength = 2
 }
 
 // MARK: - Preview
 
 #Preview {
-    FlowPreviewSupport.canvas
-        .overlay {
-            GameScoreboardView(game: FlowPreviewSupport.makeGame(phase: .playing))
-        }
-        .ignoresSafeArea()
+	FlowPreviewSupport.canvas
+		.overlay {
+			GameScoreboardView(game: FlowPreviewSupport.makeGame(phase: .playing))
+		}
+		.ignoresSafeArea()
 }

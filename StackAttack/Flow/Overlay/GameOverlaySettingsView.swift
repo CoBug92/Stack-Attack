@@ -12,7 +12,7 @@ struct GameOverlaySettingsView: View {
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 0) {
-			Text(verbatim: .shiftSettings)
+			Text(verbatim: Localizations.Settings.title)
 				.appTypography(.overlayKicker)
 				.foregroundColor(orange)
 
@@ -63,35 +63,35 @@ struct GameOverlaySettingsView: View {
 	private var screenTitle: String {
 		switch game.overlayScreen {
 		case .summary, .settings:
-			.skinSelection
+			Localizations.Settings.Appearance.title
 		case .playerAppearance:
-			.playerSelectionTitle
+			Localizations.Settings.PlayerSelection.title
 		case .manipulatorAppearance:
-			.manipulatorSelectionTitle
+			Localizations.Settings.ManipulatorSelection.title
 		case .backgroundAppearance:
-			.backgroundSelectionTitle
+			Localizations.Settings.BackgroundSelection.title
 		}
 	}
 
 	private var screenDescription: String {
 		switch game.overlayScreen {
 		case .summary, .settings:
-			.overlaySettingsDescription
+			Localizations.Settings.Appearance.description
 		case .playerAppearance:
-			.playerSelectionDescription
+			Localizations.Settings.PlayerSelection.description
 		case .manipulatorAppearance:
-			.manipulatorSelectionDescription
+			Localizations.Settings.ManipulatorSelection.description
 		case .backgroundAppearance:
-			.backgroundSelectionDescription
+			Localizations.Settings.BackgroundSelection.description
 		}
 	}
 
 	private var backButtonTitle: String {
 		switch game.overlayScreen {
 		case .summary, .settings:
-			.back
+			Localizations.Settings.Navigation.back
 		case .playerAppearance, .manipulatorAppearance, .backgroundAppearance:
-			.backToSettings
+			Localizations.Settings.Navigation.backToSections
 		}
 	}
 }
@@ -113,22 +113,4 @@ struct GameOverlaySettingsView: View {
 
 private extension CGFloat {
 	static let overlaySettingsTitleTopPaddingUnits = 4.5
-}
-
-private extension String {
-	static let shiftSettings = "НАСТРОЙКИ СМЕНЫ"
-	static let skinSelection = "Выбор скинов"
-	static let overlaySettingsDescription =
-		"Подбери грузчика, манипулятор и задний фон для следующей смены."
-	static let back = "НАЗАД"
-	static let backToSettings = "К РАЗДЕЛАМ"
-	static let playerSelectionTitle = "Выбор грузчика"
-	static let playerSelectionDescription =
-		"Сравни облики грузчика и выбери, кто выйдет на следующую смену."
-	static let manipulatorSelectionTitle = "Выбор манипулятора"
-	static let manipulatorSelectionDescription =
-		"Посмотри на каждый манипулятор отдельно и выбери подходящий стиль доставки."
-	static let backgroundSelectionTitle = "Выбор фона"
-	static let backgroundSelectionDescription =
-		"Проверь атмосферу каждой площадки и выбери фон для склада."
 }

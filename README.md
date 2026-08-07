@@ -56,6 +56,13 @@ GitHub Actions deploy описан в `.github/workflows/deploy-testflight.yml`.
 
 Задача — заполнять горизонтальные ряды. Полный ряд исчезает, а скорость крана постепенно растёт.
 
+## Скриншоты App Store
+
+Для съёмки кадров в Debug-сборке добавьте аргумент запуска `--screenshot-mode`
+в Scheme → Run → Arguments Passed On Launch. В этом режиме падение ящика и
+стопка, достигшая верха поля, не завершают попытку. Аргумент не действует в
+Release-сборке; после съёмки удалите его из Scheme.
+
 ## Где что лежит
 
 - `StackAttack/UI/` — SwiftUI-экран, HUD и overlay-меню.
@@ -65,7 +72,3 @@ GitHub Actions deploy описан в `.github/workflows/deploy-testflight.yml`.
 - `Scripts/xcodegen/` — XcodeGen-спецификация проекта; `Scripts/` содержит генерацию, lint и Fastlane.
 - `docs/ai-workflow.md` — быстрый технический гид для будущих AI-правок.
 - `docs/scripts.md` — подробный гид по локальным скриптам, env и release-инфраструктуре.
-
-## Веб-прототип
-
-Файлы `index.html`, `styles.css` и `game.js` сохранены как референс ранней версии. Для работы iOS-приложения они не используются.

@@ -42,7 +42,7 @@ struct GameOverlaySummaryView: View {
 
 			if game.canOpenOverlaySettings {
 				GameOverlaySecondaryButton(
-					title: .settings,
+					title: Localizations.Overlay.Settings.action,
 					border: border,
 					surface: surface,
 					action: game.showOverlaySettings
@@ -56,14 +56,10 @@ struct GameOverlaySummaryView: View {
 // MARK: - Constants
 
 private extension CGFloat {
-    static let overlaySummaryTitleTopPaddingUnits = 4.5
-    static let overlaySummaryPrimaryButtonTopPaddingUnits = 8.5
-    static let primaryButtonHeight = 48.0
-    static let primaryButtonCornerRadius = 4.0
-}
-
-private extension String {
-    static let settings = "НАСТРОЙКИ"
+	static let overlaySummaryTitleTopPaddingUnits = 4.5
+	static let overlaySummaryPrimaryButtonTopPaddingUnits = 8.5
+	static let primaryButtonHeight = 48.0
+	static let primaryButtonCornerRadius = 4.0
 }
 
 // MARK: - Preview

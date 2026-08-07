@@ -11,19 +11,19 @@ struct GameControlsView: View {
 		HStack(spacing: Margin.x6) {
 			HoldControlButton(
 				symbol: SFSymbols.arrowLeft,
-				label: .moveLeft,
+				label: Localizations.Control.left,
 				onPressedChanged: { game.setDirection(-1, isPressed: $0) }
 			)
 
 			HoldControlButton(
 				symbol: SFSymbols.arrowUp,
-				label: .jump,
+				label: Localizations.Control.jump,
 				onTap: game.pressJump
 			)
 
 			HoldControlButton(
 				symbol: SFSymbols.arrowRight,
-				label: .moveRight,
+				label: Localizations.Control.right,
 				onPressedChanged: { game.setDirection(1, isPressed: $0) }
 			)
 		}
@@ -43,12 +43,4 @@ struct GameControlsView: View {
 	GameControlsView(game: FlowPreviewSupport.makeGame())
 		.padding(Margin.x8)
 		.background(FlowPreviewSupport.canvas)
-}
-
-// MARK: - Constants
-
-private extension String {
-	static let moveLeft = "Влево"
-	static let jump = "Прыжок"
-	static let moveRight = "Вправо"
 }

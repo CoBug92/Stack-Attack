@@ -28,9 +28,14 @@ final class GameController: ObservableObject {
 	// MARK: - Properties
 
 	private let settingsStore: any GameSettingsStore
+	private let allowsGameOver: Bool
 
 	lazy var scene: GameScene = {
-		let scene = GameScene(size: CGSize(width: 480, height: 640), controller: self)
+		let scene = GameScene(
+			size: CGSize(width: 480, height: 640),
+			controller: self,
+			allowsGameOver: allowsGameOver
+		)
 		scene.scaleMode = .aspectFit
 		return scene
 	}()
@@ -39,6 +44,11 @@ final class GameController: ObservableObject {
 
 	init(settingsStore: any GameSettingsStore) {
 		self.settingsStore = settingsStore
+		#if DEBUG
+			allowsGameOver = !ProcessInfo.processInfo.arguments.contains(.screenshotModeArgument)
+		#else
+			allowsGameOver = true
+		#endif
 
 		let settings = settingsStore.load()
 		highScore = settings.highScore
@@ -52,41 +62,40 @@ final class GameController: ObservableObject {
 
 	var overlayKicker: String {
 		switch phase {
-		case .ready: "НОВАЯ СМЕНА"
-		case .paused: "СМЕНА ПРИОСТАНОВЛЕНА"
+		case .ready: Localizations.Overlay.Ready.kicker
+		case .paused: Localizations.Overlay.Paused.kicker
 		case .knockedOut: ""
-		case .gameOver: "СМЕНА ОКОНЧЕНА"
+		case .gameOver: Localizations.Overlay.Gameover.kicker
 		case .playing: ""
 		}
 	}
 
 	var overlayTitle: String {
 		switch phase {
-		case .ready: "Наведи порядок\nна складе"
-		case .paused: "Пауза"
+		case .ready: Localizations.Overlay.Ready.title
+		case .paused: Localizations.Overlay.Paused.title
 		case .knockedOut: ""
-		case .gameOver: "Склад переполнен"
+		case .gameOver: Localizations.Overlay.Gameover.title
 		case .playing: ""
 		}
 	}
 
 	var overlayText: String {
 		switch phase {
-		case .ready: "Толкай ящики и собирай полные ряды. Не дай грузу придавить рабочего."
-		case .paused: "Груз останется на месте. Возвращайся, когда будешь готов."
+		case .ready: Localizations.Overlay.Ready.text
+		case .paused: Localizations.Overlay.Paused.text
 		case .knockedOut: ""
-		case .gameOver:
-			"Итоговый счёт: \(score). Попробуй расчистить больше полных рядов."
+		case .gameOver: Localizations.Overlay.Gameover.text(score)
 		case .playing: ""
 		}
 	}
 
 	var primaryActionTitle: String {
 		switch phase {
-		case .ready: "НАЧАТЬ ИГРУ"
-		case .paused: "ПРОДОЛЖИТЬ"
+		case .ready: Localizations.Overlay.Ready.action
+		case .paused: Localizations.Overlay.Paused.action
 		case .knockedOut: ""
-		case .gameOver: "ЕЩЁ РАЗ"
+		case .gameOver: Localizations.Overlay.Gameover.action
 		case .playing: ""
 		}
 	}
@@ -273,4 +282,10 @@ final class GameController: ObservableObject {
 		guard hapticsEnabled else { return }
 		UIImpactFeedbackGenerator(style: style).impactOccurred()
 	}
+}
+
+// MARK: - Constants
+
+private extension String {
+	static let screenshotModeArgument = "--screenshot-mode"
 }
