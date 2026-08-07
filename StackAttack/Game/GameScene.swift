@@ -406,7 +406,7 @@ final class GameScene: SKScene {
 		playerNode.removeAllActions()
 		for offset in -1...1 {
 			let star = label("✦", .center)
-			star.fontSize = 13
+			star.applyTypography(.effectStar)
 			star.fontColor = GamePalette.Theme.warningGold
 			star.position = CGPoint(
 				x: playerNode.position.x + CGFloat(offset * 15), y: playerNode.position.y + 31)
@@ -527,9 +527,9 @@ final class GameScene: SKScene {
 	}
 
 	private func label(_ text: String, _ alignment: SKLabelHorizontalAlignmentMode) -> SKLabelNode {
-		let node = SKLabelNode(fontNamed: "Menlo-Bold")
+		let node = SKLabelNode()
+		node.applyTypography(.hudLabel)
 		node.text = text
-		node.fontSize = 9
 		node.fontColor = GamePalette.Scene.hudLabel
 		node.horizontalAlignmentMode = alignment
 		node.verticalAlignmentMode = .center

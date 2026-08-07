@@ -4,6 +4,14 @@ import UIKit
 
 @MainActor
 final class GameController: ObservableObject {
+	enum OverlayScreen {
+		case summary
+		case settings
+		case playerAppearance
+		case manipulatorAppearance
+		case backgroundAppearance
+	}
+
 	// MARK: - Observable properties
 
 	@Published private(set) var phase: GamePhase = .ready
@@ -12,6 +20,7 @@ final class GameController: ObservableObject {
 	@Published private(set) var level = 1
 	@Published private(set) var clearedLines = 0
 	@Published var hapticsEnabled = true
+	@Published private(set) var overlayScreen: OverlayScreen = .summary
 	@Published private(set) var selectedPlayerAppearance: PlayerAppearance
 	@Published private(set) var selectedManipulatorAppearance: ManipulatorAppearance
 	@Published private(set) var selectedBackgroundAppearance: BackgroundAppearance
@@ -33,6 +42,7 @@ final class GameController: ObservableObject {
 
 		let settings = settingsStore.load()
 		highScore = settings.highScore
+		hapticsEnabled = settings.hapticsEnabled
 		selectedPlayerAppearance = settings.playerAppearance
 		selectedManipulatorAppearance = settings.manipulatorAppearance
 		selectedBackgroundAppearance = settings.backgroundAppearance
@@ -86,6 +96,10 @@ final class GameController: ObservableObject {
 	}
 
 	var showsOverlaySettings: Bool {
+		overlayScreen != .summary && (phase == .ready || phase == .paused)
+	}
+
+	var canOpenOverlaySettings: Bool {
 		phase == .ready || phase == .paused
 	}
 
@@ -97,11 +111,13 @@ final class GameController: ObservableObject {
 			score = 0
 			level = 1
 			clearedLines = 0
+			overlayScreen = .summary
 			phase = .playing
 			scene.startNewGame()
 			impact(.medium)
 		case .paused:
 			scene.resetTiming()
+			overlayScreen = .summary
 			phase = .playing
 			impact(.light)
 		case .playing, .knockedOut:
@@ -113,9 +129,11 @@ final class GameController: ObservableObject {
 		switch phase {
 		case .playing:
 			scene.clearInput()
+			overlayScreen = .summary
 			phase = .paused
 		case .paused:
 			scene.resetTiming()
+			overlayScreen = .summary
 			phase = .playing
 		case .ready, .knockedOut, .gameOver:
 			break
@@ -125,8 +143,49 @@ final class GameController: ObservableObject {
 	func pauseIfNeeded() {
 		if phase == .playing {
 			scene.clearInput()
+			overlayScreen = .summary
 			phase = .paused
 		}
+	}
+
+	func showOverlaySettings() {
+		guard canOpenOverlaySettings else { return }
+		overlayScreen = .settings
+	}
+
+	func showPlayerAppearanceSettings() {
+		guard canOpenOverlaySettings else { return }
+		overlayScreen = .playerAppearance
+	}
+
+	func showManipulatorAppearanceSettings() {
+		guard canOpenOverlaySettings else { return }
+		overlayScreen = .manipulatorAppearance
+	}
+
+	func showBackgroundAppearanceSettings() {
+		guard canOpenOverlaySettings else { return }
+		overlayScreen = .backgroundAppearance
+	}
+
+	func hideOverlaySettings() {
+		switch overlayScreen {
+		case .summary:
+			break
+		case .settings:
+			overlayScreen = .summary
+		case .playerAppearance, .manipulatorAppearance, .backgroundAppearance:
+			overlayScreen = .settings
+		}
+	}
+
+	func toggleHaptics() {
+		setHapticsEnabled(!hapticsEnabled)
+	}
+
+	func setHapticsEnabled(_ enabled: Bool) {
+		hapticsEnabled = enabled
+		settingsStore.saveHapticsEnabled(enabled)
 	}
 
 	func setDirection(_ direction: Int, isPressed: Bool) {
@@ -198,6 +257,7 @@ final class GameController: ObservableObject {
 			highScore = score
 			settingsStore.saveHighScore(score)
 		}
+		overlayScreen = .summary
 		phase = .gameOver
 	}
 

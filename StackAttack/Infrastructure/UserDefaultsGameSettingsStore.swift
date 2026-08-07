@@ -10,6 +10,7 @@ struct UserDefaultsGameSettingsStore: GameSettingsStore {
 	func load() -> GameSettings {
 		GameSettings(
 			highScore: userDefaults.integer(forKey: Key.highScore),
+			hapticsEnabled: userDefaults.object(forKey: Key.hapticsEnabled) as? Bool ?? true,
 			playerAppearance: PlayerAppearance(
 				rawValue: userDefaults.string(forKey: Key.playerAppearance) ?? "")
 				?? .loader,
@@ -34,6 +35,10 @@ struct UserDefaultsGameSettingsStore: GameSettingsStore {
 		userDefaults.set(appearance.rawValue, forKey: Key.backgroundAppearance)
 	}
 
+	func saveHapticsEnabled(_ enabled: Bool) {
+		userDefaults.set(enabled, forKey: Key.hapticsEnabled)
+	}
+
 	func saveHighScore(_ score: Int) {
 		userDefaults.set(score, forKey: Key.highScore)
 	}
@@ -42,6 +47,7 @@ struct UserDefaultsGameSettingsStore: GameSettingsStore {
 private extension UserDefaultsGameSettingsStore {
 	enum Key {
 		static let highScore = "stackAttackHighScore"
+		static let hapticsEnabled = "stackAttackHapticsEnabled"
 		static let playerAppearance = "stackAttackPlayerAppearance"
 		static let manipulatorAppearance = "stackAttackManipulatorAppearance"
 		static let backgroundAppearance = "stackAttackBackgroundAppearance"

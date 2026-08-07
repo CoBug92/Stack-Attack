@@ -25,17 +25,17 @@ private struct PlayerPose {
 
 @MainActor
 enum PlayerVisualRenderer {
-	private static let outline = color(0.0902, 0.1451, 0.2078)
-	private static let warningGold = color(0.9490, 0.7216, 0.2941)
-	private static let white = color(1, 1, 1)
-	private static let signalLime = color(0.8471, 1, 0.4471)
-	private static let cyberDrone = color(0.3490, 0.2392, 0.6039)
-	private static let cyberScreen = color(0.9882, 0.8784, 0.9451)
-	private static let cyberVisor = color(0.1529, 0.1059, 0.2980)
-	private static let cyberAntenna = color(0.2118, 0.1294, 0.3725)
-	private static let cyberAntennaGlow = color(0.6627, 0.3882, 1)
-	private static let cyberDroneLight = color(0.9412, 0.3569, 0.9373)
-	private static let cyberDroneArm = color(0.3843, 0.1686, 0.4039)
+	private static let outline = GamePalette.Scene.outline
+	private static let warningGold = GamePalette.Theme.warningGold
+	private static let white = GamePalette.Theme.white
+	private static let signalLime = GamePalette.Theme.signalLime
+	private static let cyberDrone = UIColor.Player.cyberDrone
+	private static let cyberScreen = UIColor.Player.cyberScreen
+	private static let cyberVisor = UIColor.Player.cyberVisor
+	private static let cyberAntenna = UIColor.Player.cyberAntenna
+	private static let cyberAntennaGlow = UIColor.Player.cyberAntennaGlow
+	private static let cyberDroneLight = UIColor.Player.cyberDroneLight
+	private static let cyberDroneArm = UIColor.Player.cyberDroneArm
 
 	// MARK: - Rendering
 
@@ -222,38 +222,38 @@ enum PlayerVisualRenderer {
 		switch appearance {
 		case .loader:
 			PlayerSpritePalette(
-				hardHat: color(0.8431, 0.6667, 0.2627),
+				hardHat: UIColor.Player.loaderHardHat,
 				hardHatHighlight: warningGold,
-				skin: color(0.8471, 0.6314, 0.4941),
-				uniform: color(0.8431, 0.3725, 0.2627),
-				boots: color(0.3804, 0.4902, 0.2627),
-				reflectiveStripe: color(0.9569, 0.8980, 0.5490)
+				skin: UIColor.Player.loaderSkin,
+				uniform: UIColor.Player.loaderUniform,
+				boots: UIColor.Player.loaderBoots,
+				reflectiveStripe: UIColor.Player.loaderReflectiveStripe
 			)
 		case .nightLoader:
 			PlayerSpritePalette(
-				hardHat: color(0.3059, 0.7176, 0.8549),
-				hardHatHighlight: color(0.5529, 0.8824, 0.8549),
-				skin: color(0.7216, 0.4784, 0.3765),
-				uniform: color(0.2431, 0.3059, 0.5255),
-				boots: color(0.1529, 0.1922, 0.2627),
+				hardHat: UIColor.Player.nightLoaderHardHat,
+				hardHatHighlight: UIColor.Player.nightLoaderHardHatHighlight,
+				skin: UIColor.Player.nightLoaderSkin,
+				uniform: UIColor.Player.nightLoaderUniform,
+				boots: UIColor.Player.nightLoaderBoots,
 				reflectiveStripe: signalLime
 			)
 		case .veteranLoader:
 			PlayerSpritePalette(
-				hardHat: color(0.7216, 0.4275, 0.1961),
-				hardHatHighlight: color(0.8745, 0.6824, 0.2706),
-				skin: color(0.5529, 0.3608, 0.2588),
-				uniform: color(0.3804, 0.4863, 0.3059),
-				boots: color(0.2157, 0.2275, 0.2118),
-				reflectiveStripe: color(0.9255, 0.5569, 0.2118)
+				hardHat: UIColor.Player.veteranLoaderHardHat,
+				hardHatHighlight: UIColor.Player.veteranLoaderHardHatHighlight,
+				skin: UIColor.Player.veteranLoaderSkin,
+				uniform: UIColor.Player.veteranLoaderUniform,
+				boots: UIColor.Player.veteranLoaderBoots,
+				reflectiveStripe: UIColor.Player.veteranLoaderReflectiveStripe
 			)
 		case .cyberLoader:
 			PlayerSpritePalette(
-				hardHat: color(0.3647, 0.3020, 0.6392),
-				hardHatHighlight: color(0.5804, 0.4902, 0.8745),
-				skin: color(0.7255, 0.4980, 0.4118),
-				uniform: color(0.1608, 0.2196, 0.3529),
-				boots: color(0.0941, 0.1333, 0.1961),
+				hardHat: UIColor.Player.cyberLoaderHardHat,
+				hardHatHighlight: UIColor.Player.cyberLoaderHardHatHighlight,
+				skin: UIColor.Player.cyberLoaderSkin,
+				uniform: UIColor.Player.cyberLoaderUniform,
+				boots: UIColor.Player.cyberLoaderBoots,
 				reflectiveStripe: signalLime
 			)
 		}
@@ -308,7 +308,4 @@ enum PlayerVisualRenderer {
 		handNode.position = CGPoint(x: pose.handX, y: pose.handY)
 	}
 
-	private static func color(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat) -> UIColor {
-		UIColor(red: red, green: green, blue: blue, alpha: 1)
-	}
 }

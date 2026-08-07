@@ -3,26 +3,26 @@ import UIKit
 
 @MainActor
 enum DeliveryVisualRenderer {
-	private static let outline = color(0.0902, 0.1451, 0.2078)
-	private static let signalLime = color(0.8471, 1, 0.4471)
-	private static let droneBody = color(0.1412, 0.2706, 0.4275)
-	private static let droneWindow = color(0.4549, 0.8902, 0.9569)
-	private static let droneStrut = color(0.2431, 0.4078, 0.5059)
-	private static let droneRotor = color(0.0588, 0.1020, 0.1569)
-	private static let droneRotorRing = color(0.4275, 0.9098, 1)
-	private static let droneRotorHighlight = color(0.7961, 0.9373, 1)
-	private static let droneCable = color(0.6, 0.7882, 0.8275)
-	private static let rail = color(0.4627, 0.5529, 0.5882)
-	private static let wheel = color(0.0549, 0.0902, 0.1412)
-	private static let wheelRim = color(0.6, 0.7255, 0.7647)
-	private static let gantryCarriage = color(0.5608, 0.4118, 0.1922)
-	private static let carriageHighlight = color(0.9137, 0.9647, 1)
-	private static let carriageCable = color(0.6941, 0.8353, 0.8157)
-	private static let magneticCarriage = color(0.4039, 0.3020, 0.8)
-	private static let magneticGlow = color(0.3725, 0.9098, 1)
-	private static let magneticArc = color(0.6588, 0.9020, 1)
-	private static let gantryGrip = color(0.8471, 0.4941, 0.2980)
-	private static let gantryArm = color(0.7373, 0.8118, 0.8314)
+	private static let outline = GamePalette.Scene.outline
+	private static let signalLime = GamePalette.Theme.signalLime
+	private static let droneBody = UIColor.Delivery.droneBody
+	private static let droneWindow = UIColor.Delivery.droneWindow
+	private static let droneStrut = UIColor.Delivery.droneStrut
+	private static let droneRotor = UIColor.Delivery.droneRotor
+	private static let droneRotorRing = UIColor.Delivery.droneRotorRing
+	private static let droneRotorHighlight = UIColor.Delivery.droneRotorHighlight
+	private static let droneCable = UIColor.Delivery.droneCable
+	private static let rail = UIColor.Delivery.rail
+	private static let wheel = UIColor.Delivery.wheel
+	private static let wheelRim = UIColor.Delivery.wheelRim
+	private static let gantryCarriage = UIColor.Delivery.gantryCarriage
+	private static let carriageHighlight = UIColor.Delivery.carriageHighlight
+	private static let carriageCable = UIColor.Delivery.carriageCable
+	private static let magneticCarriage = UIColor.Delivery.magneticCarriage
+	private static let magneticGlow = UIColor.Delivery.magneticGlow
+	private static let magneticArc = UIColor.Delivery.magneticArc
+	private static let gantryGrip = UIColor.Delivery.gantryGrip
+	private static let gantryArm = UIColor.Delivery.gantryArm
 
 	// MARK: - Rendering
 
@@ -135,7 +135,4 @@ enum DeliveryVisualRenderer {
 		carrier.zPosition = 10
 	}
 
-	private static func color(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat) -> UIColor {
-		UIColor(red: red, green: green, blue: blue, alpha: 1)
-	}
 }

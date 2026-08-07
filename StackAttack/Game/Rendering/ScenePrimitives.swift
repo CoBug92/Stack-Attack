@@ -3,83 +3,83 @@ import UIKit
 
 enum GamePalette {
 	enum Theme {
-		static let clearSprite = UIColor(red: 1, green: 1, blue: 1, alpha: 0)
-		static let signalLime = UIColor(red: 0.8471, green: 1, blue: 0.4471, alpha: 1)
-		static let warningGold = UIColor(red: 0.9490, green: 0.7216, blue: 0.2941, alpha: 1)
-		static let white = UIColor(red: 1, green: 1, blue: 1, alpha: 1)
+		static let clearSprite = UIColor.Theme.clearSprite
+		static let signalLime = UIColor.Theme.signalLime
+		static let warningGold = UIColor.Theme.warningGold
+		static let white = UIColor.Theme.white
 	}
 
 	enum Scene {
-		static let backdrop = UIColor(red: 0.0510, green: 0.0902, blue: 0.1373, alpha: 1)
-		static let groundEdge = UIColor(red: 0.5490, green: 0.6392, blue: 0.6000, alpha: 1)
-		static let hudLabel = UIColor(red: 0.4706, green: 0.5647, blue: 0.5373, alpha: 1)
-		static let outline = UIColor(red: 0.0902, green: 0.1451, blue: 0.2078, alpha: 1)
-		static let particleDust = UIColor(red: 0.7137, green: 0.7843, blue: 0.7412, alpha: 1)
+		static let backdrop = UIColor.Scene.backdrop
+		static let groundEdge = UIColor.Scene.groundEdge
+		static let hudLabel = UIColor.Scene.hudLabel
+		static let outline = UIColor.Scene.outline
+		static let particleDust = UIColor.Scene.particleDust
 	}
 
 	enum Cargo {
-		static let crateBlue = UIColor(red: 0.5333, green: 0.6588, blue: 0.7804, alpha: 1)
-		static let crateCoral = UIColor(red: 0.9490, green: 0.4745, blue: 0.2745, alpha: 1)
-		static let crateRose = UIColor(red: 0.8196, green: 0.4196, blue: 0.4471, alpha: 1)
-		static let crateTeal = UIColor(red: 0.4588, green: 0.7098, blue: 0.6039, alpha: 1)
-		static let label = UIColor(red: 0.9255, green: 0.8941, blue: 0.7647, alpha: 1)
-		static let labelLines = UIColor(red: 0.4078, green: 0.4510, blue: 0.4824, alpha: 1)
-		static let metal = UIColor(red: 0.7882, green: 0.8275, blue: 0.8314, alpha: 1)
-		static let stamp = UIColor(red: 0.7216, green: 0.2941, blue: 0.2118, alpha: 1)
-		static let stampHighlight = UIColor(red: 1, green: 0.8784, blue: 0.6510, alpha: 1)
-		static let strap = UIColor(red: 0.9059, green: 0.8314, blue: 0.6275, alpha: 1)
+		static let crateBlue = UIColor.Cargo.crateBlue
+		static let crateCoral = UIColor.Cargo.crateCoral
+		static let crateRose = UIColor.Cargo.crateRose
+		static let crateTeal = UIColor.Cargo.crateTeal
+		static let label = UIColor.Cargo.label
+		static let labelLines = UIColor.Cargo.labelLines
+		static let metal = UIColor.Cargo.metal
+		static let stamp = UIColor.Cargo.stamp
+		static let stampHighlight = UIColor.Cargo.stampHighlight
+		static let strap = UIColor.Cargo.strap
 	}
 
 	enum Delivery {
-		static let magneticGlow = UIColor(red: 0.3725, green: 0.9098, blue: 1, alpha: 1)
+		static let magneticGlow = UIColor.Delivery.magneticGlow
 	}
 
 	enum Background {
-		static let cityBuilding = UIColor(red: 0.0863, green: 0.1412, blue: 0.2706, alpha: 1)
-		static let cityBuildingLight = UIColor(red: 0.1333, green: 0.2078, blue: 0.3922, alpha: 1)
-		static let cityGlow = UIColor(red: 0.4314, green: 0.1725, blue: 0.4902, alpha: 1)
-		static let cityHorizon = UIColor(red: 0.0863, green: 0.1098, blue: 0.2314, alpha: 1)
-		static let cityNeonPink = UIColor(red: 1, green: 0.3529, blue: 0.8510, alpha: 1)
-		static let cityRain = UIColor(red: 0.7176, green: 0.8314, blue: 1, alpha: 1)
-		static let citySky = UIColor(red: 0.0353, green: 0.0431, blue: 0.0941, alpha: 1)
-		static let cityWindow = UIColor(red: 0.0627, green: 0.0863, blue: 0.1647, alpha: 1)
-		static let cyberGlow = UIColor(red: 0.8784, green: 0.4784, blue: 0.3373, alpha: 1)
-		static let cyberHorizon = UIColor(red: 0.3686, green: 0.1922, blue: 0.3294, alpha: 1)
-		static let cyberMoon = UIColor(red: 1, green: 0.8275, blue: 0.4196, alpha: 1)
-		static let cyberRidge = UIColor(red: 0.2039, green: 0.1529, blue: 0.2314, alpha: 1)
-		static let cyberRidgeDark = UIColor(red: 0.2745, green: 0.2039, blue: 0.2549, alpha: 1)
-		static let cyberRidgeLight = UIColor(red: 0.4863, green: 0.3608, blue: 0.3294, alpha: 1)
-		static let cyberSky = UIColor(red: 0.1412, green: 0.0902, blue: 0.1686, alpha: 1)
-		static let portBuilding = UIColor(red: 0.1294, green: 0.2235, blue: 0.2824, alpha: 1)
-		static let portBuildingLight = UIColor(red: 0.2824, green: 0.4431, blue: 0.5137, alpha: 1)
-		static let portHorizon = UIColor(red: 0.1059, green: 0.1765, blue: 0.2431, alpha: 1)
-		static let portLight = UIColor(red: 0.7216, green: 0.9059, blue: 0.9490, alpha: 1)
-		static let portSky = UIColor(red: 0.0353, green: 0.0745, blue: 0.1098, alpha: 1)
-		static let portWater = UIColor(red: 0.4941, green: 0.6667, blue: 0.7137, alpha: 1)
-		static let portWindow = UIColor(red: 1, green: 0.4784, blue: 0.3294, alpha: 1)
-		static let sunsetCrane = UIColor(red: 0.0902, green: 0.1961, blue: 0.2667, alpha: 1)
-		static let sunsetCraneCool = UIColor(red: 0.2471, green: 0.4118, blue: 0.4902, alpha: 1)
-		static let sunsetCraneWarm = UIColor(red: 0.7294, green: 0.4157, blue: 0.2314, alpha: 1)
-		static let sunsetForeground = UIColor(red: 0.0392, green: 0.1255, blue: 0.1922, alpha: 1)
-		static let sunsetGlow = UIColor(red: 0.8980, green: 0.5804, blue: 0.3412, alpha: 1)
-		static let sunsetHorizon = UIColor(red: 0.0627, green: 0.1882, blue: 0.2941, alpha: 1)
-		static let sunsetLamp = UIColor(red: 1, green: 0.7137, blue: 0.4196, alpha: 1)
-		static let sunsetReflection = UIColor(red: 0.4824, green: 0.7686, blue: 0.8588, alpha: 1)
-		static let sunsetRidgeDark = UIColor(red: 0.0941, green: 0.2078, blue: 0.2863, alpha: 1)
-		static let sunsetRidgeHighlight = UIColor(red: 0.2000, green: 0.3647, blue: 0.4431, alpha: 1)
-		static let sunsetRidgeLight = UIColor(red: 0.3098, green: 0.4902, blue: 0.5647, alpha: 1)
-		static let sunsetRidgeMid = UIColor(red: 0.1490, green: 0.3059, blue: 0.3882, alpha: 1)
-		static let sunsetSky = UIColor(red: 0.0314, green: 0.0824, blue: 0.1294, alpha: 1)
-		static let sunsetStructure = UIColor(red: 0.0627, green: 0.1451, blue: 0.2039, alpha: 1)
-		static let sunsetStructureLight = UIColor(red: 0.1725, green: 0.3725, blue: 0.4627, alpha: 1)
-		static let sunsetWater = UIColor(red: 0.1412, green: 0.3098, blue: 0.4157, alpha: 1)
-		static let warehouseBeam = UIColor(red: 0.2235, green: 0.3412, blue: 0.4039, alpha: 1)
-		static let warehouseColumn = UIColor(red: 0.1216, green: 0.2078, blue: 0.2588, alpha: 1)
-		static let warehouseFloor = UIColor(red: 0.0392, green: 0.0863, blue: 0.1294, alpha: 1)
-		static let warehouseFloorMark = UIColor(red: 0.4549, green: 0.6471, blue: 0.7216, alpha: 1)
-		static let warehouseLight = UIColor(red: 0.8431, green: 0.8980, blue: 0.9294, alpha: 1)
-		static let warehouseSky = UIColor(red: 0.0275, green: 0.0627, blue: 0.0980, alpha: 1)
-		static let warehouseWall = UIColor(red: 0.0549, green: 0.1059, blue: 0.1608, alpha: 1)
+		static let cityBuilding = UIColor.Background.cityBuilding
+		static let cityBuildingLight = UIColor.Background.cityBuildingLight
+		static let cityGlow = UIColor.Background.cityGlow
+		static let cityHorizon = UIColor.Background.cityHorizon
+		static let cityNeonPink = UIColor.Background.cityNeonPink
+		static let cityRain = UIColor.Background.cityRain
+		static let citySky = UIColor.Background.citySky
+		static let cityWindow = UIColor.Background.cityWindow
+		static let cyberGlow = UIColor.Background.cyberGlow
+		static let cyberHorizon = UIColor.Background.cyberHorizon
+		static let cyberMoon = UIColor.Background.cyberMoon
+		static let cyberRidge = UIColor.Background.cyberRidge
+		static let cyberRidgeDark = UIColor.Background.cyberRidgeDark
+		static let cyberRidgeLight = UIColor.Background.cyberRidgeLight
+		static let cyberSky = UIColor.Background.cyberSky
+		static let portBuilding = UIColor.Background.portBuilding
+		static let portBuildingLight = UIColor.Background.portBuildingLight
+		static let portHorizon = UIColor.Background.portHorizon
+		static let portLight = UIColor.Background.portLight
+		static let portSky = UIColor.Background.portSky
+		static let portWater = UIColor.Background.portWater
+		static let portWindow = UIColor.Background.portWindow
+		static let sunsetCrane = UIColor.Background.sunsetCrane
+		static let sunsetCraneCool = UIColor.Background.sunsetCraneCool
+		static let sunsetCraneWarm = UIColor.Background.sunsetCraneWarm
+		static let sunsetForeground = UIColor.Background.sunsetForeground
+		static let sunsetGlow = UIColor.Background.sunsetGlow
+		static let sunsetHorizon = UIColor.Background.sunsetHorizon
+		static let sunsetLamp = UIColor.Background.sunsetLamp
+		static let sunsetReflection = UIColor.Background.sunsetReflection
+		static let sunsetRidgeDark = UIColor.Background.sunsetRidgeDark
+		static let sunsetRidgeHighlight = UIColor.Background.sunsetRidgeHighlight
+		static let sunsetRidgeLight = UIColor.Background.sunsetRidgeLight
+		static let sunsetRidgeMid = UIColor.Background.sunsetRidgeMid
+		static let sunsetSky = UIColor.Background.sunsetSky
+		static let sunsetStructure = UIColor.Background.sunsetStructure
+		static let sunsetStructureLight = UIColor.Background.sunsetStructureLight
+		static let sunsetWater = UIColor.Background.sunsetWater
+		static let warehouseBeam = UIColor.Background.warehouseBeam
+		static let warehouseColumn = UIColor.Background.warehouseColumn
+		static let warehouseFloor = UIColor.Background.warehouseFloor
+		static let warehouseFloorMark = UIColor.Background.warehouseFloorMark
+		static let warehouseLight = UIColor.Background.warehouseLight
+		static let warehouseSky = UIColor.Background.warehouseSky
+		static let warehouseWall = UIColor.Background.warehouseWall
 	}
 }
 

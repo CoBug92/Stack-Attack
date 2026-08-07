@@ -17,12 +17,15 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: ${APP_DISPLAY_NAME}
         INFOPLIST_KEY_CFBundleShortVersionString: 1.0.0
         INFOPLIST_KEY_CFBundleVersion: 1
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: false
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
         INFOPLIST_KEY_UILaunchScreen_Generation: true
         INFOPLIST_KEY_UIRequiresFullScreen: true
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown
         EXTRACT_APP_INTENTS_METADATA: false
+        ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS: true
+        ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: true
       configs:
         Debug:
           CODE_SIGN_STYLE: Automatic
