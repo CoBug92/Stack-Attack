@@ -9,6 +9,14 @@ struct OverlaySettingsPanel: View {
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: Margin.x7) {
+			BackgroundMusicMenuSection(
+				title: Localizations.Settings.music,
+				optionCount: BackgroundMusicTrack.allCases.count,
+				selectedTitle: game.selectedBackgroundMusicTrack.title,
+				selectedDescription: game.selectedBackgroundMusicTrack.description,
+				action: game.showBackgroundMusicSettings
+			)
+
 			AppearanceMenuSection(
 				title: Localizations.Settings.player,
 				optionCount: PlayerAppearance.allCases.count,

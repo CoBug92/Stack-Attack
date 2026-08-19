@@ -10,6 +10,9 @@ enum SFSymbols {
 	static let circle = "circle"
 	static let iphoneRadiowavesLeftAndRight = "iphone.radiowaves.left.and.right"
 	static let iphoneSlash = "iphone.slash"
+	static let musicNote = "music.note"
 	static let pauseFill = "pause.fill"
 	static let playFill = "play.fill"
+	static let speakerSlashFill = "speaker.slash.fill"
+	static let speakerWave2Fill = "speaker.wave.2.fill"
 }

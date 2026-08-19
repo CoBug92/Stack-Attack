@@ -12,11 +12,11 @@ struct GameHeaderIconButton<Label: View>: View {
 	var body: some View {
 		Button(action: action) {
 			label()
-                .frame(equal: .buttonLenght)
+				.frame(equal: .buttonLength)
 				.background(Color.HUD.surface)
 				.clipShape(
 					RoundedRectangle(
-                        cornerRadius: .buttonCornerRadius
+						cornerRadius: .buttonCornerRadius
 					)
 				)
 				.overlay {
@@ -43,6 +43,6 @@ struct GameHeaderIconButton<Label: View>: View {
 // MARK: - Constants
 
 private extension CGFloat {
-    static let buttonLenght: CGFloat = 38
+	static let buttonLength: CGFloat = 38
 	static let buttonCornerRadius: CGFloat = 4
 }

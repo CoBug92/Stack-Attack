@@ -51,6 +51,8 @@ struct GameOverlaySettingsView: View {
 			EmptyView()
 		case .settings:
 			OverlaySettingsPanel(game: game)
+		case .backgroundMusic:
+			BackgroundMusicSection(game: game)
 		case .playerAppearance:
 			PlayerAppearanceSection(game: game)
 		case .manipulatorAppearance:
@@ -63,7 +65,9 @@ struct GameOverlaySettingsView: View {
 	private var screenTitle: String {
 		switch game.overlayScreen {
 		case .summary, .settings:
-			Localizations.Settings.Appearance.title
+			Localizations.Settings.Overview.title
+		case .backgroundMusic:
+			Localizations.Settings.MusicSelection.title
 		case .playerAppearance:
 			Localizations.Settings.PlayerSelection.title
 		case .manipulatorAppearance:
@@ -76,7 +80,9 @@ struct GameOverlaySettingsView: View {
 	private var screenDescription: String {
 		switch game.overlayScreen {
 		case .summary, .settings:
-			Localizations.Settings.Appearance.description
+			Localizations.Settings.Overview.description
+		case .backgroundMusic:
+			Localizations.Settings.MusicSelection.description
 		case .playerAppearance:
 			Localizations.Settings.PlayerSelection.description
 		case .manipulatorAppearance:
@@ -90,7 +96,7 @@ struct GameOverlaySettingsView: View {
 		switch game.overlayScreen {
 		case .summary, .settings:
 			Localizations.Settings.Navigation.back
-		case .playerAppearance, .manipulatorAppearance, .backgroundAppearance:
+		case .backgroundMusic, .playerAppearance, .manipulatorAppearance, .backgroundAppearance:
 			Localizations.Settings.Navigation.backToSections
 		}
 	}

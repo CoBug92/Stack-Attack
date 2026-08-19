@@ -7,6 +7,7 @@ final class GameController: ObservableObject {
 	enum OverlayScreen {
 		case summary
 		case settings
+		case backgroundMusic
 		case playerAppearance
 		case manipulatorAppearance
 		case backgroundAppearance
@@ -19,8 +20,10 @@ final class GameController: ObservableObject {
 	@Published private(set) var highScore: Int
 	@Published private(set) var level = 1
 	@Published private(set) var clearedLines = 0
+	@Published var soundEnabled = true
 	@Published var hapticsEnabled = true
 	@Published private(set) var overlayScreen: OverlayScreen = .summary
+	@Published private(set) var selectedBackgroundMusicTrack: BackgroundMusicTrack
 	@Published private(set) var selectedPlayerAppearance: PlayerAppearance
 	@Published private(set) var selectedManipulatorAppearance: ManipulatorAppearance
 	@Published private(set) var selectedBackgroundAppearance: BackgroundAppearance
@@ -28,7 +31,9 @@ final class GameController: ObservableObject {
 	// MARK: - Properties
 
 	private let settingsStore: any GameSettingsStore
+	private let musicPlayer: any GameMusicPlaying
 	private let allowsGameOver: Bool
+	private var isSceneActive = false
 
 	lazy var scene: GameScene = {
 		let scene = GameScene(
@@ -42,8 +47,12 @@ final class GameController: ObservableObject {
 
 	// MARK: - Init
 
-	init(settingsStore: any GameSettingsStore) {
+	init(
+		settingsStore: any GameSettingsStore,
+		musicPlayer: any GameMusicPlaying = BundledBackgroundMusicPlayer()
+	) {
 		self.settingsStore = settingsStore
+		self.musicPlayer = musicPlayer
 		#if DEBUG
 			allowsGameOver = !ProcessInfo.processInfo.arguments.contains(.screenshotModeArgument)
 		#else
@@ -52,10 +61,13 @@ final class GameController: ObservableObject {
 
 		let settings = settingsStore.load()
 		highScore = settings.highScore
+		soundEnabled = settings.soundEnabled
 		hapticsEnabled = settings.hapticsEnabled
+		selectedBackgroundMusicTrack = settings.backgroundMusicTrack
 		selectedPlayerAppearance = settings.playerAppearance
 		selectedManipulatorAppearance = settings.manipulatorAppearance
 		selectedBackgroundAppearance = settings.backgroundAppearance
+		musicPlayer.setTrack(settings.backgroundMusicTrack)
 	}
 
 	// MARK: - Computed properties
@@ -167,6 +179,11 @@ final class GameController: ObservableObject {
 		overlayScreen = .playerAppearance
 	}
 
+	func showBackgroundMusicSettings() {
+		guard canOpenOverlaySettings else { return }
+		overlayScreen = .backgroundMusic
+	}
+
 	func showManipulatorAppearanceSettings() {
 		guard canOpenOverlaySettings else { return }
 		overlayScreen = .manipulatorAppearance
@@ -183,7 +200,7 @@ final class GameController: ObservableObject {
 			break
 		case .settings:
 			overlayScreen = .summary
-		case .playerAppearance, .manipulatorAppearance, .backgroundAppearance:
+		case .backgroundMusic, .playerAppearance, .manipulatorAppearance, .backgroundAppearance:
 			overlayScreen = .settings
 		}
 	}
@@ -192,9 +209,24 @@ final class GameController: ObservableObject {
 		setHapticsEnabled(!hapticsEnabled)
 	}
 
+	func toggleSound() {
+		setSoundEnabled(!soundEnabled)
+	}
+
 	func setHapticsEnabled(_ enabled: Bool) {
 		hapticsEnabled = enabled
 		settingsStore.saveHapticsEnabled(enabled)
+	}
+
+	func setSoundEnabled(_ enabled: Bool) {
+		soundEnabled = enabled
+		settingsStore.saveSoundEnabled(enabled)
+		syncMusicPlayback()
+	}
+
+	func setSceneActive(_ isActive: Bool) {
+		isSceneActive = isActive
+		syncMusicPlayback()
 	}
 
 	func setDirection(_ direction: Int, isPressed: Bool) {
@@ -247,6 +279,13 @@ final class GameController: ObservableObject {
 		applySelectedAppearances()
 	}
 
+	func selectBackgroundMusicTrack(_ track: BackgroundMusicTrack) {
+		selectedBackgroundMusicTrack = track
+		settingsStore.saveBackgroundMusicTrack(track)
+		musicPlayer.setTrack(track)
+		syncMusicPlayback()
+	}
+
 	func selectManipulatorAppearance(_ appearance: ManipulatorAppearance) {
 		selectedManipulatorAppearance = appearance
 		settingsStore.saveManipulatorAppearance(appearance)
@@ -276,6 +315,15 @@ final class GameController: ObservableObject {
 			manipulator: selectedManipulatorAppearance,
 			background: selectedBackgroundAppearance
 		)
+	}
+
+	private func syncMusicPlayback() {
+		guard soundEnabled, isSceneActive else {
+			musicPlayer.stop()
+			return
+		}
+
+		musicPlayer.play()
 	}
 
 	private func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {

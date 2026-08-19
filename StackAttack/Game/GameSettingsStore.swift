@@ -12,8 +12,14 @@ protocol GameSettingsStore {
 	/// Сохраняет выбранный фон.
 	func saveBackgroundAppearance(_ appearance: BackgroundAppearance)
 
+	/// Сохраняет выбранный трек фоновой музыки.
+	func saveBackgroundMusicTrack(_ track: BackgroundMusicTrack)
+
 	/// Сохраняет состояние вибрации.
 	func saveHapticsEnabled(_ enabled: Bool)
+
+	/// Сохраняет состояние музыкального сопровождения.
+	func saveSoundEnabled(_ enabled: Bool)
 
 	/// Сохраняет лучший результат игрока.
 	func saveHighScore(_ score: Int)

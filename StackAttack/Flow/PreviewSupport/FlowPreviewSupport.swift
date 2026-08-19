@@ -20,7 +20,10 @@ enum FlowPreviewSupport {
 		phase: Phase = .ready,
 		overlayScreen: GameController.OverlayScreen = .summary
 	) -> GameController {
-		let game = GameController(settingsStore: PreviewGameSettingsStore())
+		let game = GameController(
+			settingsStore: PreviewGameSettingsStore(),
+			musicPlayer: NoOpGameMusicPlayer()
+		)
 
 		switch phase {
 		case .ready:
@@ -40,6 +43,8 @@ enum FlowPreviewSupport {
 			game.hideOverlaySettings()
 		case .settings:
 			game.showOverlaySettings()
+		case .backgroundMusic:
+			game.showBackgroundMusicSettings()
 		case .playerAppearance:
 			game.showPlayerAppearanceSettings()
 		case .manipulatorAppearance:
@@ -56,7 +61,9 @@ private struct PreviewGameSettingsStore: GameSettingsStore {
 	func load() -> GameSettings {
 		GameSettings(
 			highScore: 500,
+			soundEnabled: true,
 			hapticsEnabled: false,
+			backgroundMusicTrack: .puzzleGame,
 			playerAppearance: .cyberLoader,
 			manipulatorAppearance: .drone,
 			backgroundAppearance: .port
@@ -69,7 +76,11 @@ private struct PreviewGameSettingsStore: GameSettingsStore {
 
 	func saveBackgroundAppearance(_ appearance: BackgroundAppearance) {}
 
+	func saveBackgroundMusicTrack(_ track: BackgroundMusicTrack) {}
+
 	func saveHapticsEnabled(_ enabled: Bool) {}
+
+	func saveSoundEnabled(_ enabled: Bool) {}
 
 	func saveHighScore(_ score: Int) {}
 }

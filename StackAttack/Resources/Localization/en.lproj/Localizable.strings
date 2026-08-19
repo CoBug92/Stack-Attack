@@ -1,4 +1,8 @@
 "app.title" = "STACK ATTACK";
+"music.puzzleGame.title" = "Music for Puzzle Game";
+"music.puzzleGame.description" = "The default calm puzzle track for each shift.";
+"music.minimalTechno.title" = "Minimal Techno Ambient";
+"music.minimalTechno.description" = "A hypnotic electronic backdrop with a soft pulse.";
 "appearance.player.loader.title" = "Loader";
 "appearance.player.night.title" = "Night loader";
 "appearance.player.veteran.title" = "Veteran loader";
@@ -44,11 +48,16 @@
 "control.jump" = "Jump";
 "control.right" = "Right";
 "settings.title" = "SHIFT SETTINGS";
+"settings.overview.title" = "Tune the shift";
+"settings.overview.description" = "Choose the background music, loader, manipulator, and backdrop for the next shift.";
+"settings.music" = "Background music";
 "settings.player" = "Loader";
 "settings.manipulator" = "Manipulator";
 "settings.background" = "Background";
 "settings.appearance.title" = "Appearance setup";
 "settings.appearance.description" = "Choose the loader, manipulator, and background for the next shift.";
+"settings.musicSelection.title" = "Choose background music";
+"settings.musicSelection.description" = "Compare the two tracks and pick the one that fits the next shift.";
 "settings.navigation.back" = "BACK";
 "settings.navigation.backToSections" = "TO SECTIONS";
 "settings.playerSelection.title" = "Choose loader";

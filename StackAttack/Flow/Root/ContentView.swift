@@ -54,14 +54,19 @@ struct ContentView: View {
 			.animation(.easeOut(duration: .contentOverlayAnimationDuration), value: game.phase)
 			.animation(.easeOut(duration: .contentOverlayAnimationDuration), value: game.showsOverlaySettings)
 		}
+		.onAppear {
+			game.setSceneActive(true)
+		}
 		.onDisappear {
 			game.setDirection(-1, isPressed: false)
 			game.setDirection(1, isPressed: false)
+			game.setSceneActive(false)
 		}
 		.onChange(of: scenePhase) { _, newPhase in
 			if newPhase != .active {
 				game.pauseIfNeeded()
 			}
+			game.setSceneActive(newPhase == .active)
 		}
 		#if DEBUG
 			.onAppear {

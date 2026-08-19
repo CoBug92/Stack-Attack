@@ -29,6 +29,14 @@ struct GameHeaderView: View {
 		)
 	}
 
+	private var soundButtonImage: Image {
+		Image(
+			systemName: game.soundEnabled
+				? SFSymbols.speakerWave2Fill
+				: SFSymbols.speakerSlashFill
+		)
+	}
+
 	// MARK: - Body
 
 	var body: some View {
@@ -40,6 +48,19 @@ struct GameHeaderView: View {
 			Spacer()
 
 			HStack(spacing: Margin.x4) {
+				GameHeaderIconButton(
+					action: game.toggleSound
+				) {
+					soundButtonImage
+						.font(
+							.system(
+								size: .soundIconSize,
+								weight: .black
+							)
+						)
+						.foregroundColor(game.soundEnabled ? Color.Theme.uiAccentLime : Color.HUD.textMuted)
+				}
+
 				GameHeaderIconButton(
 					action: game.toggleHaptics
 				) {
@@ -74,6 +95,7 @@ struct GameHeaderView: View {
 // MARK: - Constants
 
 private extension CGFloat {
+	static let soundIconSize: CGFloat = 14
 	static let hapticsIconSize: CGFloat = 13
 	static let pauseIconSize: CGFloat = 14
 }

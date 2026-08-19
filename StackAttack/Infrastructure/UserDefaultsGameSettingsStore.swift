@@ -10,7 +10,11 @@ struct UserDefaultsGameSettingsStore: GameSettingsStore {
 	func load() -> GameSettings {
 		GameSettings(
 			highScore: userDefaults.integer(forKey: Key.highScore),
+			soundEnabled: userDefaults.object(forKey: Key.soundEnabled) as? Bool ?? true,
 			hapticsEnabled: userDefaults.object(forKey: Key.hapticsEnabled) as? Bool ?? true,
+			backgroundMusicTrack: BackgroundMusicTrack(
+				rawValue: userDefaults.string(forKey: Key.backgroundMusicTrack) ?? ""
+			) ?? .puzzleGame,
 			playerAppearance: PlayerAppearance(
 				rawValue: userDefaults.string(forKey: Key.playerAppearance) ?? "")
 				?? .loader,
@@ -35,8 +39,16 @@ struct UserDefaultsGameSettingsStore: GameSettingsStore {
 		userDefaults.set(appearance.rawValue, forKey: Key.backgroundAppearance)
 	}
 
+	func saveBackgroundMusicTrack(_ track: BackgroundMusicTrack) {
+		userDefaults.set(track.rawValue, forKey: Key.backgroundMusicTrack)
+	}
+
 	func saveHapticsEnabled(_ enabled: Bool) {
 		userDefaults.set(enabled, forKey: Key.hapticsEnabled)
+	}
+
+	func saveSoundEnabled(_ enabled: Bool) {
+		userDefaults.set(enabled, forKey: Key.soundEnabled)
 	}
 
 	func saveHighScore(_ score: Int) {
@@ -47,7 +59,9 @@ struct UserDefaultsGameSettingsStore: GameSettingsStore {
 private extension UserDefaultsGameSettingsStore {
 	enum Key {
 		static let highScore = "stackAttackHighScore"
+		static let soundEnabled = "stackAttackSoundEnabled"
 		static let hapticsEnabled = "stackAttackHapticsEnabled"
+		static let backgroundMusicTrack = "stackAttackBackgroundMusicTrack"
 		static let playerAppearance = "stackAttackPlayerAppearance"
 		static let manipulatorAppearance = "stackAttackManipulatorAppearance"
 		static let backgroundAppearance = "stackAttackBackgroundAppearance"

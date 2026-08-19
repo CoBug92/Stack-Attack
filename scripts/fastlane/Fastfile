@@ -1,0 +1,246 @@
+fastlane_version "2.238.0"
+require "fileutils"
+require "dotenv"
+
+Dotenv.load("../.env")
+Dotenv.load
+
+default_platform(:ios)
+
+def required_env(key)
+  value = ENV[key].to_s.strip
+  UI.user_error!("Missing required environment variable #{key}") if value.empty?
+
+  value
+end
+
+def project_root
+  File.expand_path("../..", __dir__)
+end
+
+def project_path
+  File.expand_path("../../#{required_env('PROJECT_NAME')}.xcodeproj", __dir__)
+end
+
+def xcodegen_application_path
+  File.join(project_root, "scripts", "xcodegen", "Application.yml")
+end
+
+def ci_scheme
+  required_env("TARGET_NAME")
+end
+
+def detected_xcodebuild_destination
+  output = `xcodebuild -showdestinations -project "#{project_path}" -scheme "#{ci_scheme}" 2>&1`
+  UI.user_error!("Failed to query xcodebuild destinations:\n#{output}") unless $?.success?
+
+  match = output.each_line.lazy.map { |line|
+    line.match(/^\s*\{ platform:iOS Simulator,.*?id:([0-9A-F-]+),.*?name:(iPhone[^}]*) \}\s*$/)
+  }.find(&:itself)
+  UI.user_error!("No available iPhone simulator destination found for scheme #{ci_scheme}") unless match
+
+  "platform=iOS Simulator,id=#{match[1]}"
+end
+
+def detected_test_destination
+  detected_xcodebuild_destination
+end
+
+def ci_test_destination
+  explicit_destination = ENV["CI_XCODE_DESTINATION"].to_s.strip
+  return explicit_destination unless explicit_destination.empty?
+
+  detected_test_destination
+end
+
+def ci_build_destination
+  explicit_destination = ENV["CI_BUILD_DESTINATION"].to_s.strip
+  return explicit_destination unless explicit_destination.empty?
+
+  "generic/platform=iOS Simulator"
+end
+
+def ci_derived_data_path(stage)
+  root = ENV["CI_DERIVED_DATA_ROOT"].to_s.strip
+  root = File.join(project_root, ".DerivedData", "CI") if root.empty?
+  File.join(root, stage)
+end
+
+def ci_keychain_name
+  configured = ENV["CI_KEYCHAIN_NAME"].to_s.strip
+  return configured unless configured.empty?
+
+  "#{required_env('TARGET_NAME').downcase}_ci"
+end
+
+def app_store_connect_api_key_options
+  {
+    key_id: required_env("APP_STORE_CONNECT_API_KEY_ID"),
+    issuer_id: required_env("APP_STORE_CONNECT_API_ISSUER_ID"),
+    key_content: required_env("APP_STORE_CONNECT_API_KEY_CONTENT"),
+    in_house: false,
+    is_key_content_base64: true
+  }
+end
+
+def current_marketing_version
+  match = File.read(xcodegen_application_path).match(/^\s*MARKETING_VERSION:\s*(.+)$/)
+  UI.user_error!("Could not find MARKETING_VERSION in #{xcodegen_application_path}") unless match
+
+  match[1].strip.delete("'")
+end
+
+def next_testflight_build_number(api_key:, app_identifier:, marketing_version:)
+  latest_testflight_build_number(
+    api_key: api_key,
+    app_identifier: app_identifier,
+    version: marketing_version,
+    initial_build_number: 1
+  ) + 1
+end
+
+def current_branch
+  ENV["GITHUB_REF_NAME"] || git_branch
+end
+
+def ensure_deploy_branch!
+  branch = current_branch
+  return if branch == "master"
+
+  UI.user_error!("Deploy is allowed only from master. Current branch: #{branch}")
+end
+
+def build_xcargs(team_id:, build_number: nil)
+  args = ["DEVELOPMENT_TEAM=#{team_id}"]
+  unless build_number.nil?
+    args << "CURRENT_PROJECT_VERSION=#{build_number}"
+    args << "INFOPLIST_KEY_CFBundleVersion=#{build_number}"
+  end
+  args.join(" ")
+end
+
+def write_release_metadata(path:, marketing_version:, build_number:)
+  tag_name = "v#{marketing_version}-b#{build_number}"
+  File.write(
+    path,
+    <<~METADATA
+      MARKETING_VERSION=#{marketing_version}
+      BUILD_NUMBER=#{build_number}
+      TAG_NAME=#{tag_name}
+    METADATA
+  )
+end
+
+platform :ios do
+  desc "Generate resources and Xcode project"
+  lane :generate do
+    sh("../generate.sh")
+  end
+
+  desc "Run SwiftLint"
+  lane :lint do
+    sh("../swiftlint/swiftlint.sh")
+  end
+
+  desc "Run unit tests on the configured simulator"
+  lane :test do
+    derived_data_path = ci_derived_data_path("test")
+    FileUtils.mkdir_p(derived_data_path)
+
+    sh(
+      "xcodebuild",
+      "-project", project_path,
+      "-scheme", ci_scheme,
+      "-destination", ci_test_destination,
+      "-derivedDataPath", derived_data_path,
+      "CODE_SIGNING_ALLOWED=NO",
+      "test"
+    )
+  end
+
+  desc "Build the Release configuration without signing"
+  lane :build do
+    derived_data_path = ci_derived_data_path("build")
+    FileUtils.mkdir_p(derived_data_path)
+
+    sh(
+      "xcodebuild",
+      "-project", project_path,
+      "-scheme", ci_scheme,
+      "-configuration", "Release",
+      "-destination", ci_build_destination,
+      "-derivedDataPath", derived_data_path,
+      "CODE_SIGNING_ALLOWED=NO",
+      "build"
+    )
+  end
+
+  desc "Archive and upload a build to TestFlight"
+  lane :deploy do |options|
+    ensure_deploy_branch!
+
+    app_identifier = required_env("BUNDLE_ID")
+    team_id = required_env("TEAM_ID")
+    api_key = app_store_connect_api_key(app_store_connect_api_key_options)
+    marketing_version = current_marketing_version
+    build_number = next_testflight_build_number(
+      api_key: api_key,
+      app_identifier: app_identifier,
+      marketing_version: marketing_version
+    )
+
+    setup_ci(
+      force: true,
+      keychain_name: ci_keychain_name,
+      timeout: 0
+    )
+    match(api_key: api_key)
+
+    sh("../generate.sh")
+
+    gym(
+      project: project_path,
+      configuration: "Release",
+      scheme: ci_scheme,
+      silent: false,
+      clean: true,
+      export_method: "app-store",
+      export_team_id: team_id,
+      include_symbols: true,
+      xcargs: build_xcargs(team_id: team_id, build_number: build_number),
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          app_identifier => "match AppStore #{app_identifier}",
+        }
+      }
+    )
+    upload_to_testflight(api_key: api_key)
+
+    metadata_path = options[:metadata_path].to_s.strip
+    unless metadata_path.empty?
+      write_release_metadata(
+        path: metadata_path,
+        marketing_version: marketing_version,
+        build_number: build_number
+      )
+    end
+  end
+
+  desc "Create an annotated release tag"
+  lane :tag_release do |options|
+    tag_name = options[:tag_name].to_s.strip
+    if tag_name.empty?
+      marketing_version = options[:marketing_version].to_s.strip
+      build_number = options[:build_number].to_s.strip
+      UI.user_error!("tag_name or marketing_version/build_number is required") if marketing_version.empty? || build_number.empty?
+
+      tag_name = "v#{marketing_version}-b#{build_number}"
+    end
+
+    message = options[:message].to_s.strip
+    message = "TestFlight #{tag_name}" if message.empty?
+
+    sh("git", "tag", "-a", tag_name, "-m", message)
+  end
+end

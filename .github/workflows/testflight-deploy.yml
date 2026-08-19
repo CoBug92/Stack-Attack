@@ -1,0 +1,160 @@
+name: testflight-deploy
+
+on:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: testflight-deploy-master
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yml
+    secrets: inherit
+
+  deploy:
+    name: deploy
+    needs: verify
+    runs-on:
+      - self-hosted
+      - macOS
+      - personal
+      - stack-attack
+    timeout-minutes: 60
+    outputs:
+      marketing_version: ${{ steps.release_metadata.outputs.MARKETING_VERSION }}
+      build_number: ${{ steps.release_metadata.outputs.BUILD_NUMBER }}
+      tag_name: ${{ steps.release_metadata.outputs.TAG_NAME }}
+    env:
+      XCODE_PATH: /Applications/Xcode.app
+      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+      APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+      APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+      MATCH_READONLY: "true"
+      CI_KEYCHAIN_NAME: stack_attack_${{ github.run_id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Select Xcode
+        run: |
+          if [ -d "$DEVELOPER_DIR" ]; then
+            export PATH="$DEVELOPER_DIR/usr/bin:$PATH"
+            echo "Using DEVELOPER_DIR=$DEVELOPER_DIR"
+            xcodebuild -version
+          else
+            echo "Developer directory does not exist: $DEVELOPER_DIR"
+            xcode-select -p
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: |
+          export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          brew list swiftgen >/dev/null 2>&1 || brew install swiftgen
+          brew list swiftlint >/dev/null 2>&1 || brew install swiftlint
+
+          ruby_version="$(ruby -e 'print RbConfig::CONFIG["ruby_version"]')"
+          user_gem_home="$HOME/.gem/ruby/$ruby_version"
+          export GEM_HOME="$user_gem_home"
+          export GEM_PATH="$GEM_HOME:$(ruby -e 'print Gem.default_dir')"
+          export PATH="$GEM_HOME/bin:$PATH"
+
+          gem install --user-install bundler -v 2.5.3
+          bundle _2.5.3_ config set --local path "$GEM_HOME"
+          bundle _2.5.3_ install
+
+      - name: Configure SSH for Match
+        run: |
+          if [ -z "$MATCH_GIT_PRIVATE_KEY" ]; then
+            echo "Missing required secret MATCH_GIT_PRIVATE_KEY"
+            exit 1
+          fi
+
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s\n' "$MATCH_GIT_PRIVATE_KEY" > "$HOME/.ssh/match_git_key"
+          chmod 600 "$HOME/.ssh/match_git_key"
+          ssh-keyscan -p 443 ssh.github.com >> "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+          cat > "$HOME/.ssh/config" <<'EOF'
+          Host ssh.github.com
+            HostName ssh.github.com
+            Port 443
+            User git
+            IdentityFile ~/.ssh/match_git_key
+            IdentitiesOnly yes
+          EOF
+          chmod 600 "$HOME/.ssh/config"
+
+      - name: Deploy to TestFlight
+        run: |
+          export RELEASE_METADATA_PATH="$RUNNER_TEMP/release-metadata.env"
+          export PATH="$HOME/.gem/ruby/$(ruby -e 'print RbConfig::CONFIG["ruby_version"]')/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+          cd scripts/fastlane
+          bundle _2.5.3_ exec fastlane ios deploy metadata_path:"$RELEASE_METADATA_PATH"
+
+      - name: Export release metadata
+        id: release_metadata
+        run: |
+          RELEASE_METADATA_PATH="$RUNNER_TEMP/release-metadata.env"
+          cat "$RELEASE_METADATA_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Cleanup SSH key
+        if: ${{ always() }}
+        run: rm -f "$HOME/.ssh/match_git_key"
+
+  tag:
+    name: tag
+    needs: deploy
+    runs-on:
+      - self-hosted
+      - macOS
+      - personal
+      - stack-attack
+    timeout-minutes: 30
+    env:
+      TAG_NAME: ${{ needs.deploy.outputs.tag_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          ruby_version="$(ruby -e 'print RbConfig::CONFIG["ruby_version"]')"
+          user_gem_home="$HOME/.gem/ruby/$ruby_version"
+          export GEM_HOME="$user_gem_home"
+          export GEM_PATH="$GEM_HOME:$(ruby -e 'print Gem.default_dir')"
+          export PATH="$GEM_HOME/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+          gem install --user-install bundler -v 2.5.3
+          bundle _2.5.3_ config set --local path "$GEM_HOME"
+          bundle _2.5.3_ install
+
+      - name: Configure Git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create annotated tag
+        run: |
+          export PATH="$HOME/.gem/ruby/$(ruby -e 'print RbConfig::CONFIG["ruby_version"]')/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+          cd scripts/fastlane
+          bundle _2.5.3_ exec fastlane ios tag_release tag_name:"$TAG_NAME"
+
+      - name: Push tag
+        run: git push origin "$TAG_NAME"

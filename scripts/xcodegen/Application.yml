@@ -37,12 +37,12 @@ targets:
       testTargets:
         - ${TARGET_NAME}UnitTests
     preBuildScripts:
-      - script: ./Scripts/swiftgen/swiftgen.sh
+      - script: ./scripts/swiftgen/swiftgen.sh
         name: Run SwiftGen
         outputFiles:
           - $(SRCROOT)/StackAttack/Resources/Generated/Localizations.swift
     postCompileScripts:
-      - script: ./Scripts/swiftlint/swiftlint.sh
+      - script: ./scripts/swiftlint/swiftlint.sh
         name: Run SwiftLint
         basedOnDependencyAnalysis: false
   ${TARGET_NAME}UnitTests:

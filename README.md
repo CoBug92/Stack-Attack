@@ -1,74 +1,154 @@
-# Stack Attack: Новая смена — iOS
+# Stack Attack
 
-Нативный iOS-прототип по мотивам классической игры с телефонов Siemens. Интерфейс написан на SwiftUI, игровое поле — на SpriteKit.
+Stack Attack — нативная iOS-игра для iPhone и iPad по мотивам классической игры с телефонов Siemens. Игрок управляет грузчиком, двигает падающие ящики, собирает полные ряды и пытается продержаться, пока склад не переполнится.
 
-## Запуск iOS-версии
+Документация в репозитории разделяет три слоя:
 
-Откройте `StackAttack.xcodeproj` в Xcode, выберите iPhone Simulator и нажмите Run.
+- подтверждённый факт реализации — то, что можно проверить по коду и конфигам;
+- задуманный контракт — целевое поведение, зафиксированное в правилах и гайдлайнах;
+- неизвестное — то, что нельзя надёжно подтвердить без runtime-проверки или внешнего состояния.
 
-Для первоначальной установки инструментов и Ruby-зависимостей выполните:
+Сводка текущего состояния: [docs/implementation-status.md](docs/implementation-status.md).
+
+## Что подтверждено реализацией
+
+- Приложение написано на SwiftUI, а игровая сцена рендерится через SpriteKit.
+- Авторитетная игровая симуляция вынесена в `GameWorld` и не зависит от рендера.
+- Игра поддерживает локальный high score, паузу, экранные кнопки `влево / прыжок / вправо`, выбор внешнего вида грузчика, манипулятора и фона.
+- В настройках доступны два встроенных музыкальных трека, а также отдельные переключатели музыки и тактильного отклика.
+- Локализации присутствуют для русского и английского интерфейса.
+- Данные сохраняются локально через `UserDefaults`; в коде не обнаружены сеть, аккаунты, аналитика и сторонние SDK сбора данных.
+
+## Что стоит считать целевым контрактом, а не гарантией
+
+- Точное игровое поведение, UX составного ввода и поведение после оглушения описаны в [docs/game-rules.md](docs/game-rules.md), но отдельные пункты нужно считать целевым контрактом до runtime-проверки.
+- Архитектурные и инженерные правила из [docs/project-guidelines.md](docs/project-guidelines.md) задают ожидаемый способ развития проекта, а не автоматически подтверждают текущее состояние каждого файла.
+- Release-процесс и App Store-материалы зависят от внешних секретов, App Store Connect и опубликованных публичных URL.
+
+## Требования
+
+- macOS с Xcode и iOS SDK 17.0 или новее;
+- Homebrew для `xcodegen`, `swiftgen` и `swiftlint`;
+- Ruby/Bundler для Fastlane-команд;
+- при локальном deploy в TestFlight дополнительно нужны учётные данные App Store Connect и Match.
+
+## Запуск
+
+В репозитории уже может присутствовать сгенерированный `StackAttack.xcodeproj`, но канонический способ привести проект в актуальное состояние — запуск генерации из `scripts/`.
+
+Первичная подготовка локальной среды:
 
 ```sh
-Scripts/bootstrap.sh
+scripts/bootstrap.sh
 ```
 
-Параметры проекта лежат в `Scripts/project.env`. Сейчас там уже зафиксированы имя проекта, схема и bundle id; перед реальным release нужно заполнить `TEAM_ID`.
+Скрипт:
 
-Если нужно заново сгенерировать проект после изменения XcodeGen-спецификации, Fastlane или `project.env`:
+- устанавливает CLI-инструменты из `Brewfile`;
+- ставит Ruby-зависимости, если доступен `bundle`;
+- проверяет наличие `scripts/.env`;
+- запускает `scripts/generate.sh`;
+- открывает `.xcodeproj` в Xcode.
+
+`scripts/.env` хранится в репозитории и является единым источником не-секретных переменных проекта для shell-скриптов, XcodeGen и Fastlane.
+
+После изменений XcodeGen-спецификации, локализаций или структуры исходников перегенерируйте проект:
 
 ```sh
-Scripts/generate.sh
+scripts/generate.sh
 ```
-
-Локальная проверка, равная GitHub CI:
-
-```sh
-cd Scripts/fastlane && bundle exec fastlane ios ci
-```
-
-## Release
-
-Fastlane находится в `Scripts/fastlane`.
-
-Для deploy в TestFlight нужны:
-
-- `TEAM_ID` в `Scripts/project.env` или workflow env;
-- `Scripts/fastlane/.env` на основе `.env.example` для локального запуска;
-- App Store Connect API key переменные;
-- доступ к match-репозиторию с сертификатами.
-
-Локальный запуск deploy lane:
-
-```sh
-cd Scripts/fastlane && bundle exec fastlane ios deploy_to_tf
-```
-
-GitHub Actions deploy описан в `.github/workflows/deploy-testflight.yml`. Он собирает `Scripts/project.env` из secrets/vars и запускает тот же lane.
 
 ## Управление
 
-- Кнопки `←` и `→` — движение и толкание ящиков.
-- Кнопка `↑` — прыжок; удерживаемое направление задаёт боковое движение.
-- `↑` вместе с направлением к стопке сдвигает доступный верхний ящик.
-- Пауза находится в верхней части экрана.
-- Настройки смены доступны в меню перед стартом и в меню паузы.
-- Кнопки движения поддерживают удержание.
+Подтверждено кодом и документами:
 
-Задача — заполнять горизонтальные ряды. Полный ряд исчезает, а скорость крана постепенно растёт.
+- `←` и `→` отвечают за удерживаемое горизонтальное движение;
+- `↑` запускает прыжок;
+- пауза находится в верхнем HUD;
+- настройки доступны из overlay в состояниях `ready` и `paused`.
+
+Целевой игровой контракт и детали граничных сценариев описаны в [docs/game-rules.md](docs/game-rules.md).
+
+## Архитектура
+
+```text
+StackAttack/
+  App/                    точка входа приложения
+  Common/                 общие UI-константы и helpers
+  Flow/                   SwiftUI-экран, HUD, overlay и экранные controls
+  Game/
+    Domain/               GameWorld и доменная симуляция
+    Rendering/            SpriteKit-рендереры сцены
+    GameController.swift  связка UI, настроек и игровых фаз
+    GameScene.swift       игровая сцена и цикл доставки
+  Infrastructure/         UserDefaults и воспроизведение музыки
+  Resources/              ассеты, аудио, локализации, generated-файлы
+UnitTests/                unit-тесты доменной модели
+scripts/                  XcodeGen, SwiftGen, SwiftLint, Fastlane и bootstrap
+docs/                     проектная документация и App Store-материалы
+```
+
+Подробнее:
+
+- [docs/project-guidelines.md](docs/project-guidelines.md)
+- [docs/ai-workflow.md](docs/ai-workflow.md)
+
+## Проверка
+
+Локальные команды, подтверждённые скриптами и Fastlane:
+
+```sh
+cd scripts/fastlane
+bundle exec fastlane ios generate
+bundle exec fastlane ios lint
+bundle exec fastlane ios test
+bundle exec fastlane ios build
+```
+
+GitHub Actions в актуальном дереве репозитория:
+
+- `.github/workflows/verify.yml` запускается для `pull_request` в `master` и как reusable workflow;
+- `.github/workflows/testflight-deploy.yml` запускается на `push` в `master`, вызывает `verify`, затем `deploy`, затем создаёт и пушит annotated tag.
+
+Важно: прохождение сборки или unit-тестов не подтверждает UX анимаций, multi-touch и читаемость игрового темпа. Для этого нужен отдельный smoke-check в Simulator.
 
 ## Скриншоты App Store
 
-Для съёмки кадров в Debug-сборке добавьте аргумент запуска `--screenshot-mode`
-в Scheme → Run → Arguments Passed On Launch. В этом режиме падение ящика и
-стопка, достигшая верха поля, не завершают попытку. Аргумент не действует в
-Release-сборке; после съёмки удалите его из Scheme.
+В Debug-сборке доступен аргумент запуска `--screenshot-mode`. По коду он отключает обычный `game over` от падения ящика на игрока и от достижения верхней границы стопкой. В Release-сборке этот режим не действует.
 
-## Где что лежит
+В Debug также есть аргументы `--auto-start` и `--auto-play`, которые автоматически запускают игру при открытии экрана.
 
-- `StackAttack/UI/` — SwiftUI-экран, HUD и overlay-меню.
-- `StackAttack/Game/Domain/` — игровая логика `GameWorld`.
-- `StackAttack/Game/` — контроллер и SpriteKit-сцена.
-- `StackAttack/Game/Rendering/` — визуальные билдеры грузчика, грузов, фона и манипуляторов.
-- `Scripts/xcodegen/` — XcodeGen-спецификация проекта; `Scripts/` содержит генерацию, lint и Fastlane.
-- `docs/ai-workflow.md` — быстрый технический гид для будущих AI-правок.
-- `docs/scripts.md` — подробный гид по локальным скриптам, env и release-инфраструктуре.
+## Release
+
+Fastlane находится в `scripts/fastlane`, а параметры проекта — в `scripts/.env`.
+
+Подтверждено кодом:
+
+- lane `deploy` разрешён только из ветки `master`;
+- build number вычисляется относительно TestFlight;
+- `deploy` пишет release metadata для следующего шага;
+- `tag_release` создаёт annotated tag локально;
+- workflow `testflight-deploy` отдельно пушит tag в `origin`.
+
+Что зависит от внешнего состояния:
+
+- секреты GitHub Actions;
+- доступность Match-репозитория сертификатов;
+- существование app record, SKU и публичных URL в App Store Connect.
+
+Подробности:
+
+- [docs/scripts.md](docs/scripts.md)
+- [docs/app-store-connect.md](docs/app-store-connect.md)
+
+## Документация
+
+- [Текущее состояние реализации](docs/implementation-status.md)
+- [Игровые правила](docs/game-rules.md)
+- [Архитектурные гайдлайны](docs/project-guidelines.md)
+- [Скрипты, CI и release](docs/scripts.md)
+- [Контекст для AI-сессий](docs/ai-workflow.md)
+- [Подготовка App Store Connect](docs/app-store-connect.md)
+- [Privacy Policy (RU)](docs/privacy.html)
+- [Privacy Policy (EN)](docs/privacy-en.html)
+- [Support](docs/support.html)
