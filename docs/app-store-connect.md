@@ -1,45 +1,72 @@
-# App Store Connect — Stack Attack (Russian + English)
+# App Store Connect — Stack Attack
 
-Пакет для первого релиза iOS `1.0.0 (1)`. Тексты ниже основаны на текущем
-исходном коде и конфигурации проекта на 7 августа 2026 года.
+Документ собирает материалы для карточки приложения и submission checklist. Он разделяет:
 
-## Важное ограничение локализации
+- подтверждённое по репозиторию;
+- рекомендованный текст для App Store Connect;
+- внешние поля, которые нельзя считать подтверждёнными без доступа к аккаунту и финальному архиву.
 
-**Подтверждённый факт:** для интерфейса существуют файлы `ru.lproj` и
-`en.lproj`, но текущий Swift-код выводит игровые строки на русском напрямую.
-Следовательно, английская карточка в App Store будет локализована, но сам
-интерфейс приложения пока нельзя честно заявлять как английский.
+Состояние исходников и конфигов сверено 19 августа 2026 года.
 
-В App Store Connect добавьте две **App Store Localization**:
+## Что подтверждено репозиторием
+
+- Platform: iOS.
+- Bundle ID: `com.kostyuchenko.stack-attack`.
+- Текущая версия в XcodeGen-спеке: `1.0.0 (6)`.
+- `ITSAppUsesNonExemptEncryption = false`.
+- В проекте есть русская и английская локализации интерфейса.
+- В коде не обнаружены сеть, аккаунты, аналитика, реклама, покупки и сторонние data SDK.
+- В репозитории есть страницы `docs/privacy.html`, `docs/privacy-en.html` и `docs/support.html`.
+
+## Что не подтверждено одним репозиторием
+
+- SKU в App Store Connect.
+- Уже созданная app record.
+- Публичные HTTPS URL для privacy policy и support.
+- Финальный build number, если он изменится после следующего deploy.
+- Финальная анкета Age Rating и App Privacy по реально загруженному архиву.
+- Контактный телефон и другие метаданные владельца аккаунта.
+
+## Локализации карточки
+
+Рекомендуемые App Store Localization:
 
 | Локализация карточки | Назначение |
 | --- | --- |
 | Russian | Русскоязычная витрина |
 | English (U.S.) | Англоязычная витрина |
 
-Не добавляйте English в список поддерживаемых языков приложения до отдельной
-проверки реальной локализации интерфейса. Это не блокирует английскую витрину,
-но исключает ложное ожидание у пользователя.
+### Комментарий по достоверности
 
-## Общие поля — заполняются один раз
+- Наличие `ru.lproj` и `en.lproj` подтверждено.
+- Отсутствие обрезания строк в финальной Release-сборке этим аудитом не подтверждено.
 
-| Поле App Store Connect | Значение |
+## Общие поля
+
+### Подтверждено
+
+| Поле | Значение |
 | --- | --- |
-| Platform | iOS |
+| Platform | `iOS` |
 | Bundle ID | `com.kostyuchenko.stack-attack` |
-| SKU | `stack-attack-ios-001` (уникальность проверить в аккаунте) |
-| Primary category | Games → Puzzle |
-| Secondary category | Games → Casual |
-| Age Rating | Пройти актуальную анкету; предварительно 4+ |
-| Availability | Выбрать владельцу; для первого релиза — Free, без In-App Purchases |
-| Copyright | `© 2026 Bogdan Kostyuchenko` |
 | Version | `1.0.0` |
-| Build | `1` |
-| App encryption | `No` — в Xcode уже задано `ITSAppUsesNonExemptEncryption = false`; подтвердить по финальному архиву |
+| Build | `6` |
+| App encryption | `No`, если финальный архив не меняет `ITSAppUsesNonExemptEncryption = false` |
 
-## Russian — App Store Localization
+### Требует решения владельца аккаунта
 
-| Поле | Текст для вставки |
+| Поле | Статус |
+| --- | --- |
+| SKU | Выбрать и проверить уникальность в App Store Connect |
+| Primary category | Подтвердить в аккаунте |
+| Secondary category | Подтвердить в аккаунте |
+| Availability / Pricing | Подтвердить в аккаунте |
+| Copyright | Подтвердить актуальную формулировку и правообладателя |
+| Age Rating | Заполнить по финальной анкете |
+
+## Russian — рекомендованный текст
+
+| Поле | Текст |
 | --- | --- |
 | Name | `Stack Attack` |
 | Subtitle | `Наведи порядок на складе` |
@@ -49,25 +76,22 @@
 
 ### Russian — Description
 
-> Stack Attack — аркадная головоломка о работе на перегруженном складе.
->
-> Управляй грузчиком, перемещай ящики и заполняй горизонтальные ряды. Когда
-> ряд собран, он исчезает и приносит очки. Но кран не ждёт: груз прибывает всё
-> быстрее, а неудачно упавший ящик заканчивает смену.
->
-> В Stack Attack тебя ждут:
->
-> • Плавное управление: двигайся, прыгай и толкай ящики.
-> • Простая цель с растущей сложностью: собирай полные ряды и улучшай результат.
-> • Выбор внешнего вида грузчика, манипулятора и фона.
-> • Настраиваемый тактильный отклик.
-> • Локальный рекорд, который сохраняется на устройстве.
->
-> Начинай новую смену и наведи порядок на складе.
+Stack Attack — аркадная головоломка о работе на перегруженном складе.
 
-## English (U.S.) — App Store Localization
+Управляй грузчиком, перемещай ящики и заполняй горизонтальные ряды. Когда ряд собран, он исчезает и приносит очки. Но склад не ждёт: груз прибывает всё быстрее, а неудачно упавший ящик завершает попытку.
 
-| Field | Copy to paste |
+В Stack Attack тебя ждут:
+
+- плавное управление: двигайся, прыгай и толкай ящики;
+- сбор полных рядов с растущей сложностью;
+- выбор внешнего вида грузчика, манипулятора и фона;
+- два встроенных музыкальных трека с возможностью отключения музыки;
+- отключаемый тактильный отклик;
+- локальный рекорд, который сохраняется на устройстве.
+
+## English (U.S.) — recommended copy
+
+| Field | Copy |
 | --- | --- |
 | Name | `Stack Attack` |
 | Subtitle | `Clear the warehouse` |
@@ -77,89 +101,114 @@
 
 ### English — Description
 
-> Stack Attack is an arcade puzzle game set in an overcrowded warehouse.
->
-> Guide a loader, move crates, and fill horizontal rows. A completed row clears
-> for points, but the crane never waits: cargo arrives faster and faster, and a
-> badly placed crate can end the shift.
->
-> In Stack Attack, you can:
->
-> • Move, jump, and push crates with responsive on-screen controls.
-> • Clear complete rows as the pace increases.
-> • Choose the look of your loader, cargo manipulator, and background.
-> • Enable or disable haptic feedback.
-> • Keep a high score saved locally on your device.
->
-> Start a new shift and bring order to the warehouse.
+Stack Attack is an arcade puzzle game set in an overcrowded warehouse.
 
-## Public URLs — required before submission
+Guide a loader, move crates, and fill horizontal rows. A completed row clears for points, but cargo arrives faster and faster, and a badly placed crate can end the shift.
 
-| App Store Connect field | Russian page | English page |
-| --- | --- | --- |
-| Privacy Policy URL | `https://[your-domain]/privacy.html` | `https://[your-domain]/privacy-en.html` |
-| Support URL | `https://[your-domain]/support.html` | Same page; it contains Russian and English support information |
-| Marketing URL | Optional — leave blank unless a real landing page is published |
+In Stack Attack, players can:
 
-The repository contains the sources for these pages:
+- move, jump, and push crates with on-screen controls;
+- clear full rows as the pace increases;
+- choose the look of the loader, cargo manipulator, and background;
+- switch between two built-in music tracks or turn music off;
+- enable or disable haptic feedback;
+- keep a local high score on the device.
 
-- [`privacy.html`](privacy.html) — Russian policy
-- [`privacy-en.html`](privacy-en.html) — English policy
-- [`support.html`](support.html) — bilingual support page
+## Public URLs
 
-They must be deployed at public HTTPS URLs without sign-in. Update the example
-URLs above to the actual host before submitting. The URLs cannot be inferred
-from the repository.
+В репозитории есть только исходники страниц:
+
+- `docs/privacy.html`
+- `docs/privacy-en.html`
+- `docs/support.html`
+
+Для submission нужны реальные публичные HTTPS URL без sign-in. Пример placeholders:
+
+| Field | Placeholder |
+| --- | --- |
+| Privacy Policy URL (RU) | `https://[your-domain]/privacy.html` |
+| Privacy Policy URL (EN) | `https://[your-domain]/privacy-en.html` |
+| Support URL | `https://[your-domain]/support.html` |
+
+Эти URL нельзя вывести из одного лишь репозитория.
 
 ## App Privacy
 
-Current source code uses local `UserDefaults` only for the high score,
-appearance choices, and haptics preference. The code search found no network,
-advertising, analytics, account, or third-party data SDK.
+### Подтверждено кодом
 
-For the current release select **Data Not Collected**. Recheck the final
-archived build before submission; this answer becomes incorrect if analytics,
-crash reporting, ads, attribution, a backend, or another data SDK is added.
+- Сохраняются локально только high score и пользовательские настройки.
+- По исходникам не видно сбора персональных данных, сетевых вызовов, аналитики и рекламных SDK.
 
-## Age Rating questionnaire
+### Рекомендация
 
-Preliminary answers: select **None / No** for all content categories. The
-current game has no user-generated content, chat, ads, purchases, gambling,
-medical information, sexual content, weapons, or realistic violence. The final
-rating is calculated by App Store Connect from the current questionnaire.
+Для текущей конфигурации кода базовая гипотеза — **Data Not Collected**.
+
+### Ограничение
+
+Это утверждение нужно перепроверить по финальному архиву перед отправкой. Оно перестанет быть верным, если до релиза добавятся analytics, crash reporting, ads, attribution или любой внешний data SDK.
+
+## Age Rating
+
+### Рабочая гипотеза
+
+По текущему репозиторию нет признаков:
+
+- user-generated content;
+- чата;
+- азартных механик;
+- рекламы;
+- покупок;
+- реалистичного насилия;
+- сексуального контента;
+- медицинской информации.
+
+### Ограничение
+
+Финальный возрастной рейтинг определяется актуальной анкетой App Store Connect, а не этим документом.
 
 ## App Review Information
 
-| Field | Value |
-| --- | --- |
-| Sign-in required | No |
-| Demo account | Not required |
-| Contact first name / last name | `Bogdan Kostyuchenko` |
-| Contact email | `b.kostyuchenko@gmail.com` |
-| Contact phone | `[enter a reachable phone number]` |
-| Notes | `The app works fully offline. No account, payment, or external hardware is required. Gameplay controls are on screen: left, jump, right; the pause button is at the top.` |
+### Подтверждено
 
-## Screenshots and preview
+- Sign-in required: `No`
+- Demo account: `Not required`
+- Приложение работает офлайн и использует экранные controls
 
-Use only screenshots from the final build. Prepare the same three scenarios for
-each App Store localization; their text must match the selected language:
+### Требует ручного заполнения
 
-1. Start screen and the shift settings.
-2. Gameplay: falling crate, stack, score, and level.
-3. Appearance choices: another background and cargo manipulator.
+- Contact first name / last name
+- Contact email
+- Contact phone
+- Review notes в финальной формулировке владельца аккаунта
 
-The project declares both iPhone and iPad. Upload every device-size set required
-by App Store Connect, and do not submit iPad screenshots until the release build
-has been checked on iPad. An App Preview is optional for version 1.0.
+Рабочая заметка для review:
+
+`The app works fully offline. No account, payment, or external hardware is required. Gameplay controls are on screen: left, jump, right; the pause button is at the top.`
+
+## Скриншоты
+
+Рекомендуемые сценарии для каждой локализации:
+
+1. Стартовый overlay и настройки смены.
+2. Геймплей: ящики, счёт, уровень, пауза в верхнем HUD.
+3. Выбор внешнего вида или другой фон/манипулятор.
+
+### Подтверждённый факт реализации
+
+- В Debug есть аргумент `--screenshot-mode`.
+- В Debug также есть `--auto-start` и `--auto-play`.
+
+### Неизвестное
+
+- Этот аудит не подтверждает, что текущая iPad-верстка и все необходимые screenshot size classes уже визуально готовы к загрузке в App Store Connect.
 
 ## Submission checklist
 
-- [ ] Create the app record using the bundle ID and SKU above.
-- [ ] Add Russian and English (U.S.) App Store localizations and paste the copy.
-- [ ] Publish the privacy and support pages over HTTPS; replace `[your-domain]`.
-- [ ] Verify the two policy pages show the real contact email and copyright holder.
-- [ ] Upload a signed `1.0.0 (1)` archive and select it for the version.
-- [ ] Complete pricing, territories, tax/banking agreements, and App Review phone number.
-- [ ] Complete App Privacy and Age Rating using the **final archive**, not this document.
-- [ ] Add final screenshots for all required device classes and both localizations.
-- [ ] Test the release build on iPhone and iPad before pressing Submit for Review.
+- [ ] Подтвердить или создать app record в App Store Connect.
+- [ ] Выбрать и проверить уникальность SKU.
+- [ ] Проверить, что финальная версия и build совпадают с загруженным архивом.
+- [ ] Опубликовать `privacy.html`, `privacy-en.html` и `support.html` по реальным HTTPS URL.
+- [ ] Перепроверить App Privacy и Age Rating по финальному архиву.
+- [ ] Подтвердить категории, pricing, territories и review contact.
+- [ ] Подготовить финальные скриншоты для обязательных device classes.
+- [ ] Проверить Release-сборку на iPhone и iPad перед Submit for Review.
